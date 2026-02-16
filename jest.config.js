@@ -1,10 +1,27 @@
-module.exports = {
+/** @type {import('jest').Config} */
+const config = {
     preset: 'jest-expo',
-
-    transformIgnorePatterns: [
-        'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)',
+    setupFilesAfterEnv: ['./jest.setup.js'],
+    clearMocks: true,
+    collectCoverage: true,
+    collectCoverageFrom: [
+        'src/**/*.{ts,tsx}',
+        '!src/**/*.d.ts',
+        '!src/types/**/*',
+        '!src/**/index.ts', // Exclude barrel files
+        '!src/constants/**/*', // Exclude constants
     ],
+    coverageThreshold: {
+        global: {
+            branches: 90,
+            functions: 90,
+            lines: 90,
+            statements: 90,
+        },
+    },
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
 };
+
+module.exports = config;

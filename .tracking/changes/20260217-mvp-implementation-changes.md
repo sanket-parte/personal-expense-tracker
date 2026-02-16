@@ -14,3 +14,14 @@
 
 - **[REFACTOR]**: Extracted database queries into `src/services/expenseService.ts` for better separation of concerns.
 - **[REFACTOR]**: Updated `useExpenseStore.ts` to use `expenseService`.
+
+## 2026-02-17: Reliability & Testing
+
+- **[TEST]**: Integrated Jest with `jest-expo`.
+- **[TEST]**: Achieved **97%** code coverage.
+- **[TEST]**: Added unit tests for:
+    -   `expenseService` (DB logic)
+    -   `useExpenseStore` (State logic)
+    -   `useAppTheme` (Hook logic)
+    -   `DashboardScreen`, `AddExpenseScreen`, etc. (Render logic)
+    -   `AppNavigator` & `RootNavigator` (Navigation logic)
