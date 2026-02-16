@@ -10,3 +10,4 @@ export const db = drizzle(expoDb, { schema });
 
 // Export schema for easy access
 export * from '@/db/schema';
+export * from './expenseService';

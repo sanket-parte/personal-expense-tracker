@@ -1,5 +1,4 @@
-import { db, expenses, type Expense, type NewExpense } from '@/services/database';
-import { desc } from 'drizzle-orm';
+import { expenseService, type Expense, type NewExpense } from '@/services/database';
 import { create } from 'zustand';
 
 interface ExpenseState {
@@ -20,10 +19,7 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
   refreshExpenses: async () => {
     set({ isLoading: true, error: null });
     try {
-      // Fetch expenses ordered by date descending
-      const result = await db.query.expenses.findMany({
-        orderBy: [desc(expenses.date)],
-      });
+      const result = await expenseService.getAll();
       set({ items: result });
     } catch (e) {
       set({ error: 'Failed to fetch expenses' });
@@ -36,7 +32,7 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
   addExpense: async (data) => {
     set({ isLoading: true, error: null });
     try {
-      await db.insert(expenses).values(data);
+      await expenseService.create(data);
       // Refresh to get the new item with ID
       await get().refreshExpenses();
     } catch (e) {

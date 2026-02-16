@@ -9,3 +9,8 @@
 - **[FEAT]**: Created core screen shells (`Dashboard`, `Add`, `History`, `Settings`).
 - **[FEAT]**: Integrated Navigation into `App.tsx`.
 - **[FIX]**: Resolved type-checking and linting errors. (Verified with `npm run typecheck` & `npm run lint`).
+
+## 2026-02-17: Code Review & Refactor
+
+- **[REFACTOR]**: Extracted database queries into `src/services/expenseService.ts` for better separation of concerns.
+- **[REFACTOR]**: Updated `useExpenseStore.ts` to use `expenseService`.
