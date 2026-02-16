@@ -5,6 +5,11 @@ jest.mock('expo-status-bar', () => ({
     StatusBar: () => 'StatusBar',
 }));
 
+// Mock window.dispatchEvent (Fixes React Native Web / Jest issue)
+if (typeof window !== 'undefined' && !window.dispatchEvent) {
+    window.dispatchEvent = jest.fn();
+}
+
 // Mock safe-area-context
 import mockSafeAreaContext from 'react-native-safe-area-context/jest/mock';
 jest.mock('react-native-safe-area-context', () => mockSafeAreaContext);
@@ -20,7 +25,8 @@ jest.mock('react-native-screens', () => ({
  */
 jest.mock('expo-sqlite', () => ({
     openDatabaseSync: jest.fn(() => ({
-        // Mock the database object
+        execSync: jest.fn(),
+        execAsync: jest.fn(),
     })),
 }));
 

@@ -1,4 +1,5 @@
-import { db, expenses, type Expense, type NewExpense } from '@/services/database';
+import { expenses, type Expense, type NewExpense } from '@/db/schema';
+import { db } from '@/services/database';
 import { desc } from 'drizzle-orm';
 
 /**
@@ -22,5 +23,12 @@ export const expenseService = {
    */
   create: async (expense: NewExpense): Promise<void> => {
     await db.insert(expenses).values(expense);
+  },
+
+  /**
+   * Delete all expenses.
+   */
+  deleteAll: async (): Promise<void> => {
+    await db.delete(expenses);
   },
 };

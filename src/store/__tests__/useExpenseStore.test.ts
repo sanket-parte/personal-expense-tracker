@@ -1,8 +1,8 @@
-import { expenseService } from '../../services/database';
+import { expenseService } from '@/services/expenseService';
 import { useExpenseStore } from '../useExpenseStore';
 
 // Mock the expenseService
-jest.mock('../../services/database', () => ({
+jest.mock('@/services/expenseService', () => ({
   expenseService: {
     getAll: jest.fn(),
     create: jest.fn(),

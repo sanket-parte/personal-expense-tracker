@@ -1,4 +1,5 @@
-import { expenseService, type Expense, type NewExpense } from '@/services/database';
+import { type Expense, type NewExpense } from '@/db/schema';
+import { expenseService } from '@/services/expenseService';
 import { create } from 'zustand';
 
 interface ExpenseState {

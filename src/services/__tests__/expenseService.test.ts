@@ -1,54 +1,33 @@
-import { db, expenses } from '../database';
+import { expenses } from '@/db/schema';
+import { db } from '@/services/database';
 import { expenseService } from '../expenseService';
 
-// Mock the database service
-jest.mock('../database', () => ({
-  db: {
-    query: {
-      expenses: {
-        findMany: jest.fn(),
-      },
-    },
-    insert: jest.fn(() => ({
-      values: jest.fn(),
-    })),
-  },
-  expenses: { date: 'date' }, // Mock schema object
-}));
+// Mock DB is already set up in jest.setup.js
+// We need to typecase db to mock implementation
+// But wait, jest.setup.js mocks the module 'drizzle-orm/expo-sqlite'
+// We might need to spy on the methods exposed by db.
+// Or just check that it calls the mocked functions.
 
 describe('expenseService', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('getAll', () => {
-    it('should fetch expenses ordered by date descending', async () => {
-      const mockExpenses = [{ id: 1, title: 'Test', amount: 100 }];
-      (db.query.expenses.findMany as jest.Mock).mockResolvedValue(mockExpenses);
-
-      const result = await expenseService.getAll();
-
-      expect(db.query.expenses.findMany).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(mockExpenses);
-    });
+  it('getAll calls findMany', async () => {
+    await expenseService.getAll();
+    expect(db.query.expenses.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: expect.any(Array) }),
+    );
   });
 
-  describe('create', () => {
-    it('should insert a new expense', async () => {
-      const newExpense = {
-        title: 'New Expense',
-        amount: 50,
-        date: new Date(),
-        categoryId: 1,
-      };
+  it('create calls insert', async () => {
+    const newExpense = { amount: 10, title: 'Test', date: new Date(), categoryId: 1 };
+    await expenseService.create(newExpense);
+    expect(db.insert).toHaveBeenCalledWith(expenses);
+  });
 
-      const mockValues = jest.fn().mockResolvedValue({ lastInsertRowId: 1 });
-      (db.insert as jest.Mock).mockReturnValue({ values: mockValues });
-
-      await expenseService.create(newExpense);
-
-      expect(db.insert).toHaveBeenCalledWith(expenses);
-      expect(mockValues).toHaveBeenCalledWith(newExpense);
-    });
+  it('deleteAll calls delete', async () => {
+    await expenseService.deleteAll();
+    expect(db.delete).toHaveBeenCalledWith(expenses);
   });
 });

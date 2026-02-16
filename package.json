@@ -7,7 +7,7 @@
       "bash -c 'tsc --noEmit'",
       "eslint --fix",
       "prettier --write",
-      "jest --bail --findRelatedTests --passWithNoTests"
+      "jest --bail --findRelatedTests --passWithNoTests --coverage=false"
     ],
     "src/**/*.json": [
       "prettier --write"
