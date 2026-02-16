@@ -7,7 +7,7 @@
       "bash -c 'tsc --noEmit'",
       "eslint --fix",
       "prettier --write",
-      "jest --bail --findRelatedTests"
+      "jest --bail --findRelatedTests --passWithNoTests"
     ],
     "src/**/*.json": [
       "prettier --write"
@@ -27,12 +27,22 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@react-navigation/bottom-tabs": "^7.14.0",
+    "@react-navigation/native": "^7.1.28",
+    "@react-navigation/native-stack": "^7.13.0",
     "babel-preset-expo": "~54.0.10",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.45.1",
     "expo": "~54.0.33",
     "expo-constants": "~18.0.13",
+    "expo-sqlite": "^16.0.10",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
-    "react-native": "0.81.5"
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-screens": "^4.23.0",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@testing-library/react-native": "^13.3.3",
@@ -41,6 +51,7 @@
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
     "babel-plugin-module-resolver": "^5.0.2",
+    "drizzle-kit": "^0.31.9",
     "eslint": "^9.27.0",
     "eslint-config-expo": "~10.0.0",
     "eslint-config-prettier": "^10.1.5",

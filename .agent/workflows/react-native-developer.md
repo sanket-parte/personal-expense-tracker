@@ -52,6 +52,15 @@ After **every significant step**:
 2.  **Commit**:
     -   Use the `/commit` workflow to stage and push.
 
+### 5. Final Plan Update (MANDATORY)
+Once all development and verification is complete:
+1.  **Update Plan File**:
+    -   Go back to the `.tracking/plans/...-plan.instructions.md` file.
+    -   Ensure **all** completed phases and tasks are marked with `[x]`.
+    -   Double-check that no `[/]` (in-progress) markers remain for completed work.
+2.  **Notify User**:
+    -   Inform the user that the plan has been updated and the task is complete.
+
 ## Critical Rules for Developer
 - **Updates**: You **MUST** update the `.tracking/plans` file. This is how the agent system knows status.
 - **Dependency**: Do not start Phase 2 until Phase 1 is verified.

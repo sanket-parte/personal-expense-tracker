@@ -7,14 +7,7 @@
  */
 
 // ─── Navigation Types ────────────────────────────────────────────────────────
-
-/**
- * Root stack parameter list.
- * Add screen params as the app grows.
- */
-export type RootStackParamList = {
-  Home: undefined;
-};
+export * from './navigation';
 
 // ─── Common Utility Types ────────────────────────────────────────────────────
 

@@ -1,0 +1,11 @@
+# Changes: MVP Implementation
+
+## 2026-02-17
+
+- **[INIT]**: Started MVP Implementation.
+- **[FEAT]**: Configured Drizzle ORM + Expo SQLite (`src/db/schema.ts`, `src/services/database.ts`).
+- **[FEAT]**: Implemented Zustand Global State (`src/store/useExpenseStore.ts`).
+- **[FEAT]**: Set up Navigation Structure (`src/navigation/`).
+- **[FEAT]**: Created core screen shells (`Dashboard`, `Add`, `History`, `Settings`).
+- **[FEAT]**: Integrated Navigation into `App.tsx`.
+- **[FIX]**: Resolved type-checking and linting errors. (Verified with `npm run typecheck` & `npm run lint`).
