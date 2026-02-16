@@ -6,7 +6,8 @@
     "src/**/*.{ts,tsx}": [
       "bash -c 'tsc --noEmit'",
       "eslint --fix",
-      "prettier --write"
+      "prettier --write",
+      "jest --bail --findRelatedTests"
     ],
     "src/**/*.json": [
       "prettier --write"
