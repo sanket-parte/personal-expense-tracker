@@ -19,14 +19,14 @@ Apps like Mint, YNAB, and PocketGuard dominate, but often lack seamless integrat
 ## 3. Technology Strategy
 For a cross-platform mobile app (Android & iOS) with high performance and security requirements:
 
-| Feature | **Flutter (Recommended)** | **React Native** |
+| Feature | **Flutter** | **React Native (Chosen)** |
 | :--- | :--- | :--- |
-| **Performance** | Near-native (Skia/Impeller engine). Excellent for complex charts/visuals. | Very nice, uses Native components. Bridge architecture (improving with New Arch). |
-| **Development Speed** | Fast (Hot Reload). Single codebase. | Fast (Hot Reload). Massive ecosystem (JS/React). |
+| **Performance** | Near-native (Skia/Impeller engine). Excellent for complex charts/visuals. | Near-native with New Architecture (Fabric + TurboModules, enabled in this project). |
+| **Development Speed** | Fast (Hot Reload). Single codebase. | Fast (Hot Reload). Massive ecosystem (JS/React). Expo managed workflow simplifies builds. |
 | **UI Consistency** | Pixel-perfect across all devices. | Uses platform-native UI (looks like iOS on iOS, Android on Android). |
-| **Security** | Compiled to native ARM code (harder to reverse engineer). | Interpreted JS bundle (easier to inspect without obfuscation). |
+| **Security** | Compiled to native ARM code (harder to reverse engineer). | JS bundle can be obfuscated. Hermes bytecode compilation adds a layer of protection. |
 
-**Recommendation:** **Flutter** is recommended for a finance app due to its **superior security** (compiled code), **performance** with data visualization (charts), and **consistent UI** rendering across fragmented Android devices.
+> **Decision (confirmed):** **React Native** (Expo SDK 54, New Architecture) was chosen for its massive ecosystem, developer velocity with Expo, and the team's existing React/TypeScript expertise.
 
 ## 4. Productionization Roadmap
 Building a "production-grade" financial app requires strict discipline.
@@ -35,7 +35,7 @@ Building a "production-grade" financial app requires strict discipline.
 *   **CI/CD Pipeline:** GitHub Actions to automated linting, testing, and building of APK/IPA files.
 *   **Security First:**
     *   **Data Storage:** Use secure hardware-backed storage (Keychain/Keystore) for tokens. NEVER store raw banking credentials.
-    *   **Encryption:** ALS-256 for local database (e.g., Hive/Realm/SQLite encrypted). TLS 1.3 for all API calls.
+    *   **Encryption:** AES-256 for local database (e.g., SQLite encrypted, MMKV). TLS 1.3 for all API calls.
     *   **Authentication:** Biometric login (Fingerprint/FaceID) + PIN fallback.
 
 ### **Phase 2: Cloud Infrastructure**
@@ -54,9 +54,9 @@ Financial stress is a leading cause of anxiety. This app aims to generate positi
 3.  **Family Stability:** Better money management leads to fewer domestic conflicts over finances.
 
 ## 6. How to Start (Immediate Next Steps)
-1.  **Select Tech Stack:** Confirm **Flutter** vs **React Native**.
+1.  ~~**Select Tech Stack:** Confirm **Flutter** vs **React Native**.~~ ✅ **Done** — React Native (Expo SDK 54) selected.
 2.  **Define MVP Scope:** Choose the "Must Have" features (e.g., start with manual entry + SMS parsing for Android).
 3.  **Design First:** Create wireframes for the "Add Transaction" and "Dashboard" screens.
-4.  **Setup Repo:** Initialize a monorepo with the mobile app and a basic backend (e.g., FastAPI/Node.js).
+4.  ~~**Setup Repo:** Initialize a monorepo with the mobile app and a basic backend (e.g., FastAPI/Node.js).~~ ✅ **Done** — Project initialized with TypeScript, ESLint, Prettier, theming system.
 
-*Ready to proceed? We can start by initializing the project repository and setting up the basic app structure.*
+*Project is set up and ready for feature development.*

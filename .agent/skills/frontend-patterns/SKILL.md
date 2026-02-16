@@ -1,503 +1,442 @@
 ---
 name: frontend-patterns
-description: Frontend development patterns for React, Next.js, state management, performance optimization, and UI best practices.
+description: React patterns for component composition, state management, hooks, performance, and forms — adapted for React Native.
 ---
 
-# Frontend Development Patterns
+# Frontend Development Patterns (React Native)
 
-Modern frontend patterns for React, Next.js, and performant user interfaces.
+Reusable React patterns adapted for React Native mobile development. These patterns complement the `mobile-dev` skill with deeper pattern guidance.
 
 ## When to Activate
 
-- Building React components (composition, props, rendering)
-- Managing state (useState, useReducer, Zustand, Context)
-- Implementing data fetching (SWR, React Query, server components)
-- Optimizing performance (memoization, virtualization, code splitting)
-- Working with forms (validation, controlled inputs, Zod schemas)
-- Handling client-side routing and navigation
-- Building accessible, responsive UI patterns
+- Building reusable component hierarchies (composition, compound components)
+- Managing complex state (useState, useReducer, Zustand, Context)
+- Writing custom hooks for shared logic
+- Optimizing performance (memoization, list virtualization)
+- Handling forms (validation, controlled inputs)
+- Implementing error boundaries
+
+---
 
 ## Component Patterns
 
 ### Composition Over Inheritance
 
-```typescript
-// ✅ GOOD: Component composition
+```tsx
+// ✅ GOOD: Component composition with React Native
 interface CardProps {
-  children: React.ReactNode
-  variant?: 'default' | 'outlined'
+  children: React.ReactNode;
+  variant?: 'default' | 'outlined';
 }
 
 export function Card({ children, variant = 'default' }: CardProps) {
-  return <div className={`card card-${variant}`}>{children}</div>
+  const { colors } = useAppTheme();
+  return (
+    <View style={[
+      styles.card,
+      { backgroundColor: variant === 'outlined' ? 'transparent' : colors.surface },
+      variant === 'outlined' && { borderWidth: 1, borderColor: colors.border },
+    ]}>
+      {children}
+    </View>
+  );
 }
 
 export function CardHeader({ children }: { children: React.ReactNode }) {
-  return <div className="card-header">{children}</div>
+  return <View style={styles.cardHeader}>{children}</View>;
 }
 
 export function CardBody({ children }: { children: React.ReactNode }) {
-  return <div className="card-body">{children}</div>
+  return <View style={styles.cardBody}>{children}</View>;
 }
 
 // Usage
 <Card>
-  <CardHeader>Title</CardHeader>
-  <CardBody>Content</CardBody>
+  <CardHeader><Text>Title</Text></CardHeader>
+  <CardBody><Text>Content</Text></CardBody>
 </Card>
 ```
 
 ### Compound Components
 
-```typescript
+```tsx
 interface TabsContextValue {
-  activeTab: string
-  setActiveTab: (tab: string) => void
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
 }
 
-const TabsContext = createContext<TabsContextValue | undefined>(undefined)
+const TabsContext = createContext<TabsContextValue | undefined>(undefined);
 
 export function Tabs({ children, defaultTab }: {
-  children: React.ReactNode
-  defaultTab: string
+  children: React.ReactNode;
+  defaultTab: string;
 }) {
-  const [activeTab, setActiveTab] = useState(defaultTab)
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
       {children}
     </TabsContext.Provider>
-  )
+  );
 }
 
-export function TabList({ children }: { children: React.ReactNode }) {
-  return <div className="tab-list">{children}</div>
-}
+export function Tab({ id, children }: { id: string; children: React.ReactNode }) {
+  const context = useContext(TabsContext);
+  if (!context) throw new Error('Tab must be used within Tabs');
 
-export function Tab({ id, children }: { id: string, children: React.ReactNode }) {
-  const context = useContext(TabsContext)
-  if (!context) throw new Error('Tab must be used within Tabs')
+  const { colors } = useAppTheme();
 
   return (
-    <button
-      className={context.activeTab === id ? 'active' : ''}
-      onClick={() => context.setActiveTab(id)}
+    <Pressable
+      onPress={() => context.setActiveTab(id)}
+      style={[
+        styles.tab,
+        context.activeTab === id && { borderBottomColor: colors.primary },
+      ]}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: context.activeTab === id }}
     >
-      {children}
-    </button>
-  )
+      <Text style={{ color: context.activeTab === id ? colors.primary : colors.textSecondary }}>
+        {children}
+      </Text>
+    </Pressable>
+  );
 }
-
-// Usage
-<Tabs defaultTab="overview">
-  <TabList>
-    <Tab id="overview">Overview</Tab>
-    <Tab id="details">Details</Tab>
-  </TabList>
-</Tabs>
 ```
 
 ### Render Props Pattern
 
-```typescript
+```tsx
 interface DataLoaderProps<T> {
-  url: string
-  children: (data: T | null, loading: boolean, error: Error | null) => React.ReactNode
+  fetchFn: () => Promise<T>;
+  children: (data: T | null, loading: boolean, error: Error | null) => React.ReactNode;
 }
 
-export function DataLoader<T>({ url, children }: DataLoaderProps<T>) {
-  const [data, setData] = useState<T | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+export function DataLoader<T>({ fetchFn, children }: DataLoaderProps<T>) {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    fetch(url)
-      .then(res => res.json())
+    fetchFn()
       .then(setData)
       .catch(setError)
-      .finally(() => setLoading(false))
-  }, [url])
+      .finally(() => setLoading(false));
+  }, [fetchFn]);
 
-  return <>{children(data, loading, error)}</>
+  return <>{children(data, loading, error)}</>;
 }
 
 // Usage
-<DataLoader<Market[]> url="/api/markets">
-  {(markets, loading, error) => {
-    if (loading) return <Spinner />
-    if (error) return <Error error={error} />
-    return <MarketList markets={markets!} />
+<DataLoader<Expense[]> fetchFn={fetchExpenses}>
+  {(expenses, loading, error) => {
+    if (loading) return <ActivityIndicator />;
+    if (error) return <Text>Error: {error.message}</Text>;
+    return <ExpenseList expenses={expenses!} />;
   }}
 </DataLoader>
 ```
 
+---
+
 ## Custom Hooks Patterns
 
-### State Management Hook
+### State Toggle Hook
 
-```typescript
+```tsx
 export function useToggle(initialValue = false): [boolean, () => void] {
-  const [value, setValue] = useState(initialValue)
-
-  const toggle = useCallback(() => {
-    setValue(v => !v)
-  }, [])
-
-  return [value, toggle]
+  const [value, setValue] = useState(initialValue);
+  const toggle = useCallback(() => setValue((v) => !v), []);
+  return [value, toggle];
 }
 
 // Usage
-const [isOpen, toggleOpen] = useToggle()
+const [isVisible, toggleVisible] = useToggle();
 ```
 
 ### Async Data Fetching Hook
 
-```typescript
+```tsx
 interface UseQueryOptions<T> {
-  onSuccess?: (data: T) => void
-  onError?: (error: Error) => void
-  enabled?: boolean
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
+  enabled?: boolean;
 }
 
 export function useQuery<T>(
   key: string,
   fetcher: () => Promise<T>,
-  options?: UseQueryOptions<T>
+  options?: UseQueryOptions<T>,
 ) {
-  const [data, setData] = useState<T | null>(null)
-  const [error, setError] = useState<Error | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const refetch = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
+    setLoading(true);
+    setError(null);
     try {
-      const result = await fetcher()
-      setData(result)
-      options?.onSuccess?.(result)
+      const result = await fetcher();
+      setData(result);
+      options?.onSuccess?.(result);
     } catch (err) {
-      const error = err as Error
-      setError(error)
-      options?.onError?.(error)
+      const fetchError = err as Error;
+      setError(fetchError);
+      options?.onError?.(fetchError);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [fetcher, options])
+  }, [fetcher, options]);
 
   useEffect(() => {
     if (options?.enabled !== false) {
-      refetch()
+      refetch();
     }
-  }, [key, refetch, options?.enabled])
+  }, [key, refetch, options?.enabled]);
 
-  return { data, error, loading, refetch }
+  return { data, error, loading, refetch };
 }
-
-// Usage
-const { data: markets, loading, error, refetch } = useQuery(
-  'markets',
-  () => fetch('/api/markets').then(r => r.json()),
-  {
-    onSuccess: data => console.log('Fetched', data.length, 'markets'),
-    onError: err => console.error('Failed:', err)
-  }
-)
 ```
 
 ### Debounce Hook
 
-```typescript
+```tsx
 export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
 
-    return () => clearTimeout(handler)
-  }, [value, delay])
-
-  return debouncedValue
+  return debouncedValue;
 }
 
-// Usage
-const [searchQuery, setSearchQuery] = useState('')
-const debouncedQuery = useDebounce(searchQuery, 500)
-
-useEffect(() => {
-  if (debouncedQuery) {
-    performSearch(debouncedQuery)
-  }
-}, [debouncedQuery])
+// Usage — search input
+const [searchQuery, setSearchQuery] = useState('');
+const debouncedQuery = useDebounce(searchQuery, 500);
 ```
+
+---
 
 ## State Management Patterns
 
-### Context + Reducer Pattern
+### Context + Reducer
 
-```typescript
-interface State {
-  markets: Market[]
-  selectedMarket: Market | null
-  loading: boolean
+```tsx
+interface ExpenseState {
+  expenses: Expense[];
+  loading: boolean;
+  filter: string | null;
 }
 
-type Action =
-  | { type: 'SET_MARKETS'; payload: Market[] }
-  | { type: 'SELECT_MARKET'; payload: Market }
+type ExpenseAction =
+  | { type: 'SET_EXPENSES'; payload: Expense[] }
+  | { type: 'ADD_EXPENSE'; payload: Expense }
   | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_FILTER'; payload: string | null };
 
-function reducer(state: State, action: Action): State {
+function expenseReducer(state: ExpenseState, action: ExpenseAction): ExpenseState {
   switch (action.type) {
-    case 'SET_MARKETS':
-      return { ...state, markets: action.payload }
-    case 'SELECT_MARKET':
-      return { ...state, selectedMarket: action.payload }
+    case 'SET_EXPENSES':
+      return { ...state, expenses: action.payload };
+    case 'ADD_EXPENSE':
+      return { ...state, expenses: [action.payload, ...state.expenses] };
     case 'SET_LOADING':
-      return { ...state, loading: action.payload }
+      return { ...state, loading: action.payload };
+    case 'SET_FILTER':
+      return { ...state, filter: action.payload };
     default:
-      return state
+      return state;
   }
 }
 
-const MarketContext = createContext<{
-  state: State
-  dispatch: Dispatch<Action>
-} | undefined>(undefined)
+const ExpenseContext = createContext<{
+  state: ExpenseState;
+  dispatch: Dispatch<ExpenseAction>;
+} | undefined>(undefined);
 
-export function MarketProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, {
-    markets: [],
-    selectedMarket: null,
-    loading: false
-  })
+export function ExpenseProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(expenseReducer, {
+    expenses: [],
+    loading: false,
+    filter: null,
+  });
 
   return (
-    <MarketContext.Provider value={{ state, dispatch }}>
+    <ExpenseContext.Provider value={{ state, dispatch }}>
       {children}
-    </MarketContext.Provider>
-  )
+    </ExpenseContext.Provider>
+  );
 }
 
-export function useMarkets() {
-  const context = useContext(MarketContext)
-  if (!context) throw new Error('useMarkets must be used within MarketProvider')
-  return context
+export function useExpenses() {
+  const context = useContext(ExpenseContext);
+  if (!context) throw new Error('useExpenses must be used within ExpenseProvider');
+  return context;
 }
 ```
+
+---
 
 ## Performance Optimization
 
 ### Memoization
 
-```typescript
+```tsx
 // ✅ useMemo for expensive computations
-const sortedMarkets = useMemo(() => {
-  return markets.sort((a, b) => b.volume - a.volume)
-}, [markets])
+const totalByCategory = useMemo(() => {
+  return expenses.reduce((acc, exp) => {
+    acc[exp.category] = (acc[exp.category] ?? 0) + exp.amount;
+    return acc;
+  }, {} as Record<string, number>);
+}, [expenses]);
 
-// ✅ useCallback for functions passed to children
-const handleSearch = useCallback((query: string) => {
-  setSearchQuery(query)
-}, [])
+// ✅ useCallback for callbacks passed to children
+const handleExpensePress = useCallback((id: string) => {
+  navigation.navigate('ExpenseDetail', { id });
+}, [navigation]);
 
-// ✅ React.memo for pure components
-export const MarketCard = React.memo<MarketCardProps>(({ market }) => {
+// ✅ React.memo for pure list items
+export const ExpenseRow = React.memo<ExpenseRowProps>(({ expense, onPress }) => {
+  const { colors } = useAppTheme();
   return (
-    <div className="market-card">
-      <h3>{market.name}</h3>
-      <p>{market.description}</p>
-    </div>
-  )
-})
+    <Pressable onPress={() => onPress(expense.id)}>
+      <Text style={{ color: colors.text }}>{expense.description}</Text>
+    </Pressable>
+  );
+});
 ```
 
-### Code Splitting & Lazy Loading
+### List Optimization
 
-```typescript
-import { lazy, Suspense } from 'react'
+```tsx
+// ✅ Use FlashList for long lists with stable callbacks
+import { FlashList } from '@shopify/flash-list';
 
-// ✅ Lazy load heavy components
-const HeavyChart = lazy(() => import('./HeavyChart'))
-const ThreeJsBackground = lazy(() => import('./ThreeJsBackground'))
+export function ExpenseList({ expenses }: { expenses: Expense[] }) {
+  const renderItem = useCallback(({ item }: { item: Expense }) => (
+    <ExpenseRow expense={item} onPress={handlePress} />
+  ), [handlePress]);
 
-export function Dashboard() {
+  const keyExtractor = useCallback((item: Expense) => item.id, []);
+
   return (
-    <div>
-      <Suspense fallback={<ChartSkeleton />}>
-        <HeavyChart data={data} />
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <ThreeJsBackground />
-      </Suspense>
-    </div>
-  )
+    <FlashList
+      data={expenses}
+      renderItem={renderItem}
+      keyExtractor={keyExtractor}
+      estimatedItemSize={72}
+    />
+  );
 }
 ```
 
-### Virtualization for Long Lists
+---
 
-```typescript
-import { useVirtualizer } from '@tanstack/react-virtual'
-
-export function VirtualMarketList({ markets }: { markets: Market[] }) {
-  const parentRef = useRef<HTMLDivElement>(null)
-
-  const virtualizer = useVirtualizer({
-    count: markets.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 100,  // Estimated row height
-    overscan: 5  // Extra items to render
-  })
-
-  return (
-    <div ref={parentRef} style={{ height: '600px', overflow: 'auto' }}>
-      <div
-        style={{
-          height: `${virtualizer.getTotalSize()}px`,
-          position: 'relative'
-        }}
-      >
-        {virtualizer.getVirtualItems().map(virtualRow => (
-          <div
-            key={virtualRow.index}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: `${virtualRow.size}px`,
-              transform: `translateY(${virtualRow.start}px)`
-            }}
-          >
-            <MarketCard market={markets[virtualRow.index]} />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-```
-
-## Form Handling Patterns
+## Form Handling
 
 ### Controlled Form with Validation
 
-```typescript
-interface FormData {
-  name: string
-  description: string
-  endDate: string
+```tsx
+interface ExpenseFormData {
+  amount: string;
+  category: string;
+  description: string;
 }
 
 interface FormErrors {
-  name?: string
-  description?: string
-  endDate?: string
+  amount?: string;
+  category?: string;
+  description?: string;
 }
 
-export function CreateMarketForm() {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
+export function AddExpenseForm({ onSubmit }: { onSubmit: (data: ExpenseFormData) => void }) {
+  const { colors } = useAppTheme();
+  const [formData, setFormData] = useState<ExpenseFormData>({
+    amount: '',
+    category: '',
     description: '',
-    endDate: ''
-  })
-
-  const [errors, setErrors] = useState<FormErrors>({})
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const validate = (): boolean => {
-    const newErrors: FormErrors = {}
+    const newErrors: FormErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required'
-    } else if (formData.name.length > 200) {
-      newErrors.name = 'Name must be under 200 characters'
+    if (!formData.amount.trim() || isNaN(Number(formData.amount))) {
+      newErrors.amount = 'Valid amount is required';
+    }
+    if (!formData.category.trim()) {
+      newErrors.category = 'Category is required';
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required'
-    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    if (!formData.endDate) {
-      newErrors.endDate = 'End date is required'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!validate()) return
-
-    try {
-      await createMarket(formData)
-      // Success handling
-    } catch (error) {
-      // Error handling
-    }
-  }
+  const handleSubmit = () => {
+    if (!validate()) return;
+    onSubmit(formData);
+  };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        value={formData.name}
-        onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-        placeholder="Market name"
+    <View>
+      <TextInput
+        value={formData.amount}
+        onChangeText={(text) => setFormData((prev) => ({ ...prev, amount: text }))}
+        placeholder="Amount"
+        keyboardType="decimal-pad"
+        accessibilityLabel="Expense amount"
+        style={[styles.input, { borderColor: errors.amount ? colors.error : colors.border }]}
       />
-      {errors.name && <span className="error">{errors.name}</span>}
+      {errors.amount && <Text style={{ color: colors.error }}>{errors.amount}</Text>}
 
       {/* Other fields */}
 
-      <button type="submit">Create Market</button>
-    </form>
-  )
+      <Pressable onPress={handleSubmit} accessibilityRole="button" accessibilityLabel="Save expense">
+        <Text>Save</Text>
+      </Pressable>
+    </View>
+  );
 }
 ```
 
-## Error Boundary Pattern
+---
 
-```typescript
+## Error Boundary
+
+```tsx
 interface ErrorBoundaryState {
-  hasError: boolean
-  error: Error | null
+  hasError: boolean;
+  error: Error | null;
 }
 
 export class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
+  { children: React.ReactNode; fallback?: React.ReactNode },
   ErrorBoundaryState
 > {
-  state: ErrorBoundaryState = {
-    hasError: false,
-    error: null
-  }
+  state: ErrorBoundaryState = { hasError: false, error: null };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error boundary caught:', error, errorInfo)
+    console.error('Error boundary caught:', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      return (
-        <div className="error-fallback">
-          <h2>Something went wrong</h2>
-          <p>{this.state.error?.message}</p>
-          <button onClick={() => this.setState({ hasError: false })}>
-            Try again
-          </button>
-        </div>
-      )
+      return this.props.fallback ?? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Something went wrong</Text>
+          <Pressable onPress={() => this.setState({ hasError: false })}>
+            <Text>Try again</Text>
+          </Pressable>
+        </View>
+      );
     }
-
-    return this.props.children
+    return this.props.children;
   }
 }
 
@@ -507,135 +446,36 @@ export class ErrorBoundary extends React.Component<
 </ErrorBoundary>
 ```
 
-## Animation Patterns
+---
 
-### Framer Motion Animations
+## Animation Patterns (React Native)
 
-```typescript
-import { motion, AnimatePresence } from 'framer-motion'
+Use `Animated` API or `react-native-reanimated` for animations:
 
-// ✅ List animations
-export function AnimatedMarketList({ markets }: { markets: Market[] }) {
-  return (
-    <AnimatePresence>
-      {markets.map(market => (
-        <motion.div
-          key={market.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          <MarketCard market={market} />
-        </motion.div>
-      ))}
-    </AnimatePresence>
-  )
-}
+```tsx
+import { Animated } from 'react-native';
 
-// ✅ Modal animations
-export function Modal({ isOpen, onClose, children }: ModalProps) {
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            className="modal-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
-          <motion.div
-            className="modal-content"
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          >
-            {children}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  )
-}
-```
-
-## Accessibility Patterns
-
-### Keyboard Navigation
-
-```typescript
-export function Dropdown({ options, onSelect }: DropdownProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [activeIndex, setActiveIndex] = useState(0)
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault()
-        setActiveIndex(i => Math.min(i + 1, options.length - 1))
-        break
-      case 'ArrowUp':
-        e.preventDefault()
-        setActiveIndex(i => Math.max(i - 1, 0))
-        break
-      case 'Enter':
-        e.preventDefault()
-        onSelect(options[activeIndex])
-        setIsOpen(false)
-        break
-      case 'Escape':
-        setIsOpen(false)
-        break
-    }
-  }
-
-  return (
-    <div
-      role="combobox"
-      aria-expanded={isOpen}
-      aria-haspopup="listbox"
-      onKeyDown={handleKeyDown}
-    >
-      {/* Dropdown implementation */}
-    </div>
-  )
-}
-```
-
-### Focus Management
-
-```typescript
-export function Modal({ isOpen, onClose, children }: ModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null)
-  const previousFocusRef = useRef<HTMLElement | null>(null)
+export function FadeInView({ children }: { children: React.ReactNode }) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (isOpen) {
-      // Save currently focused element
-      previousFocusRef.current = document.activeElement as HTMLElement
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
 
-      // Focus modal
-      modalRef.current?.focus()
-    } else {
-      // Restore focus when closing
-      previousFocusRef.current?.focus()
-    }
-  }, [isOpen])
-
-  return isOpen ? (
-    <div
-      ref={modalRef}
-      role="dialog"
-      aria-modal="true"
-      tabIndex={-1}
-      onKeyDown={e => e.key === 'Escape' && onClose()}
-    >
+  return (
+    <Animated.View style={{ opacity: fadeAnim }}>
       {children}
-    </div>
-  ) : null
+    </Animated.View>
+  );
 }
 ```
 
-**Remember**: Modern frontend patterns enable maintainable, performant user interfaces. Choose patterns that fit your project complexity.
+For complex gesture-driven or layout animations, prefer `react-native-reanimated` v3.
+
+---
+
+**Remember**: Choose patterns that fit your complexity. Start simple, refactor to patterns when the codebase demands it.
