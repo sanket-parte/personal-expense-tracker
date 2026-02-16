@@ -6,6 +6,7 @@
  */
 
 import { TransactionItem } from '@/components';
+import { Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
 import { useExpenseStore } from '@/store/useExpenseStore';
 import { groupExpensesByDate } from '@/utils/dateHelpers';
@@ -35,7 +36,7 @@ export function HistoryScreen() {
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <TransactionItem item={item} onPress={() => {}} />}
+        renderItem={({ item }) => <TransactionItem item={item} />}
         renderSectionHeader={({ section: { title } }) => (
           <View style={[styles.sectionHeader, { backgroundColor: colors.background }]}>
             <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
@@ -60,31 +61,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.base,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: Typography.fontSize.xl,
+    fontWeight: Typography.fontWeight.bold,
   },
   listContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.lg,
   },
   sectionHeader: {
     paddingVertical: 10,
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.semiBold,
     textTransform: 'uppercase',
   },
   emptyContainer: {
-    padding: 40,
+    padding: Spacing['3xl'],
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: Typography.fontSize.base,
   },
 });

@@ -1,6 +1,16 @@
+/**
+ * TransactionList Component
+ *
+ * Provides a reusable FlatList-based transaction list and a
+ * standalone TransactionItem component for rendering individual
+ * expense entries with category icon, title, date, and amount.
+ */
+
 import { CATEGORIES, getCategoryById } from '@/constants/categories';
+import { Spacing, Typography } from '@/constants/theme';
 import { type Expense } from '@/db/schema';
 import { useAppTheme } from '@/hooks';
+import { getCurrencySymbol } from '@/utils/currency';
 import { format } from 'date-fns';
 import React from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -13,6 +23,7 @@ interface TransactionItemProps {
 export function TransactionItem({ item, onPress }: TransactionItemProps) {
   const { colors } = useAppTheme();
   const category = getCategoryById(item.categoryId || 8) || CATEGORIES[7]; // Default to Other
+  const symbol = getCurrencySymbol();
 
   return (
     <Pressable
@@ -34,7 +45,10 @@ export function TransactionItem({ item, onPress }: TransactionItemProps) {
           {format(item.date, 'MMM dd, HH:mm')}
         </Text>
       </View>
-      <Text style={[styles.amount, { color: colors.text }]}>-${item.amount.toFixed(2)}</Text>
+      <Text style={[styles.amount, { color: colors.text }]}>
+        -{symbol}
+        {item.amount.toFixed(2)}
+      </Text>
     </Pressable>
   );
 }
@@ -76,14 +90,14 @@ export function TransactionList({
 
 const styles = StyleSheet.create({
   listContent: {
-    paddingBottom: 20,
+    paddingBottom: Spacing.lg,
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: Spacing.base,
     borderRadius: 16,
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
   iconContainer: {
     width: 44,
@@ -94,28 +108,28 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   icon: {
-    fontSize: 20,
+    fontSize: Typography.fontSize.lg,
   },
   details: {
     flex: 1,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.semiBold,
+    marginBottom: Spacing.xs,
   },
   date: {
-    fontSize: 12,
+    fontSize: Typography.fontSize.xs,
   },
   amount: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.semiBold,
   },
   emptyContainer: {
-    padding: 40,
+    padding: Spacing['3xl'],
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 15,
+    fontSize: Typography.fontSize.base,
   },
 });

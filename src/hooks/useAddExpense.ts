@@ -20,25 +20,31 @@ export function useAddExpense() {
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [date] = useState(new Date());
 
-  const isValid = !!amount && !!title.trim() && !!categoryId;
+  const parsedAmount = Number(amount);
+  const isAmountValid = !!amount && !isNaN(parsedAmount) && parsedAmount > 0;
+  const isTitleValid = !!title.trim();
+  const isCategoryValid = !!categoryId;
+
+  const isValid = isAmountValid && isTitleValid && isCategoryValid;
 
   const handleSave = async () => {
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    // Guard: button should be disabled, but provide field-specific feedback
+    if (!isAmountValid) {
       Alert.alert('Invalid Amount', 'Please enter a valid positive number.');
       return;
     }
-    if (!title.trim()) {
+    if (!isTitleValid) {
       Alert.alert('Missing Title', 'Please enter a description for the expense.');
       return;
     }
-    if (!categoryId) {
+    if (!isCategoryValid) {
       Alert.alert('Missing Category', 'Please select a category.');
       return;
     }
 
     try {
       await addExpense({
-        amount: Number(amount),
+        amount: parsedAmount,
         title: title.trim(),
         date: date,
         categoryId: categoryId,

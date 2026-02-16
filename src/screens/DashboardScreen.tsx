@@ -6,13 +6,14 @@
  */
 
 import { SummaryCard, TransactionList } from '@/components';
+import { Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
 import { useExpenseStore } from '@/store/useExpenseStore';
 import type { AppTabParamList } from '@/types/navigation';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useMemo } from 'react';
-import { StatusBar, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function DashboardScreen() {
@@ -25,14 +26,18 @@ export function DashboardScreen() {
     refreshExpenses();
   }, [refreshExpenses]);
 
-  // Derived state
+  // Derived state — items already ordered by date desc from expenseService
   const totalExpenses = useMemo(() => {
     return items.reduce((sum, item) => sum + item.amount, 0);
   }, [items]);
 
   const recentTransactions = useMemo(() => {
-    return [...items].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 5);
+    return items.slice(0, 5);
   }, [items]);
+
+  const handleSeeAll = useCallback(() => {
+    navigation.navigate('History');
+  }, [navigation]);
 
   return (
     <View
@@ -51,12 +56,13 @@ export function DashboardScreen() {
 
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
-          <Text
-            style={[styles.seeAll, { color: colors.primary }]}
-            onPress={() => navigation.navigate('History')}
+          <Pressable
+            onPress={handleSeeAll}
+            accessibilityLabel="See all transactions"
+            accessibilityHint="Navigate to the full transaction history"
           >
-            See All
-          </Text>
+            <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
+          </Pressable>
         </View>
 
         <TransactionList
@@ -73,36 +79,36 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.base,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   greeting: {
-    fontSize: 14,
-    marginBottom: 4,
+    fontSize: Typography.fontSize.sm,
+    marginBottom: Spacing.xs,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: Typography.fontSize.xl,
+    fontWeight: Typography.fontWeight.bold,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.lg,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.base,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: Typography.fontSize.md,
+    fontWeight: Typography.fontWeight.semiBold,
   },
   seeAll: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.medium,
   },
 });

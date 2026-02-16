@@ -10,6 +10,7 @@ interface ExpenseState {
   // Actions
   refreshExpenses: () => Promise<void>;
   addExpense: (data: NewExpense) => Promise<void>;
+  clearExpenses: () => Promise<void>;
 }
 
 export const useExpenseStore = create<ExpenseState>((set, get) => ({
@@ -38,6 +39,19 @@ export const useExpenseStore = create<ExpenseState>((set, get) => ({
       await get().refreshExpenses();
     } catch (e) {
       set({ error: 'Failed to add expense' });
+      console.error(e);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  clearExpenses: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await expenseService.deleteAll();
+      set({ items: [] });
+    } catch (e) {
+      set({ error: 'Failed to clear expenses' });
       console.error(e);
     } finally {
       set({ isLoading: false });

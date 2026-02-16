@@ -5,20 +5,20 @@
  * and data management actions (e.g., clear all expenses).
  */
 
+import { Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
-import { expenseService } from '@/services/expenseService';
 import { useExpenseStore } from '@/store/useExpenseStore';
-import React, { useState } from 'react';
+import React, { useCallback } from 'react';
 import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function SettingsScreen() {
   const { colors, isDark } = useAppTheme();
   const insets = useSafeAreaInsets();
-  const refreshExpenses = useExpenseStore((state) => state.refreshExpenses);
-  const [isClearing, setIsClearing] = useState(false);
+  const clearExpenses = useExpenseStore((state) => state.clearExpenses);
+  const isLoading = useExpenseStore((state) => state.isLoading);
 
-  const handleClearData = () => {
+  const handleClearData = useCallback(() => {
     Alert.alert(
       'Clear All Data',
       'Are you sure you want to delete all expenses? This action cannot be undone.',
@@ -28,21 +28,17 @@ export function SettingsScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: async () => {
-            setIsClearing(true);
             try {
-              await expenseService.deleteAll();
-              await refreshExpenses();
+              await clearExpenses();
               Alert.alert('Success', 'All data has been cleared.');
             } catch {
               Alert.alert('Error', 'Failed to clear data.');
-            } finally {
-              setIsClearing(false);
             }
           },
         },
       ],
     );
-  };
+  }, [clearExpenses]);
 
   return (
     <View
@@ -81,11 +77,11 @@ export function SettingsScreen() {
               { opacity: pressed ? 0.7 : 1, borderBottomWidth: 0 },
             ]}
             onPress={handleClearData}
-            disabled={isClearing}
+            disabled={isLoading}
             testID="clear-data-button"
           >
             <Text style={[styles.rowLabel, { color: colors.error }]}>
-              {isClearing ? 'Clearing...' : 'Clear All Data'}
+              {isLoading ? 'Clearing...' : 'Clear All Data'}
             </Text>
           </Pressable>
         </View>
@@ -101,41 +97,41 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.base,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: Typography.fontSize.xl,
+    fontWeight: Typography.fontWeight.bold,
   },
   content: {
-    padding: 20,
+    padding: Spacing.lg,
   },
   section: {
     borderRadius: 12,
-    marginBottom: 24,
+    marginBottom: Spacing.xl,
     overflow: 'hidden',
   },
   sectionHeader: {
-    fontSize: 12,
-    fontWeight: '600',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+    fontSize: Typography.fontSize.xs,
+    fontWeight: Typography.fontWeight.semiBold,
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.base,
+    paddingBottom: Spacing.sm,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    padding: Spacing.base,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   rowLabel: {
-    fontSize: 16,
+    fontSize: Typography.fontSize.base,
   },
   version: {
     textAlign: 'center',
-    fontSize: 12,
-    marginTop: 20,
+    fontSize: Typography.fontSize.xs,
+    marginTop: Spacing.lg,
   },
 });

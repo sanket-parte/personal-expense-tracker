@@ -6,6 +6,7 @@ jest.mock('@/services/expenseService', () => ({
   expenseService: {
     getAll: jest.fn(),
     create: jest.fn(),
+    deleteAll: jest.fn(),
   },
 }));
 
@@ -74,6 +75,32 @@ describe('useExpenseStore', () => {
 
       const state = useExpenseStore.getState();
       expect(state.error).toBe('Failed to add expense');
+      expect(state.isLoading).toBeFalsy();
+    });
+  });
+
+  describe('clearExpenses', () => {
+    it('should clear all expenses successfully', async () => {
+      // Pre-populate state
+      useExpenseStore.setState({ items: [{ id: 1, title: 'Test', amount: 100 }] as never[] });
+      (expenseService.deleteAll as jest.Mock).mockResolvedValue(undefined);
+
+      await useExpenseStore.getState().clearExpenses();
+
+      const state = useExpenseStore.getState();
+      expect(expenseService.deleteAll).toHaveBeenCalled();
+      expect(state.items).toEqual([]);
+      expect(state.isLoading).toBeFalsy();
+      expect(state.error).toBeNull();
+    });
+
+    it('should handle errors during clear', async () => {
+      (expenseService.deleteAll as jest.Mock).mockRejectedValue(new Error('Delete Error'));
+
+      await useExpenseStore.getState().clearExpenses();
+
+      const state = useExpenseStore.getState();
+      expect(state.error).toBe('Failed to clear expenses');
       expect(state.isLoading).toBeFalsy();
     });
   });

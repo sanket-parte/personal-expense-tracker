@@ -5,7 +5,6 @@
  * Pressable style branches, and theme switch.
  */
 
-import { expenseService } from '@/services/expenseService';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
 import { Alert } from 'react-native';
@@ -19,15 +18,13 @@ interface AlertButton {
 }
 
 // Mock dependencies
-jest.mock('@/services/expenseService', () => ({
-  expenseService: {
-    deleteAll: jest.fn(),
-  },
-}));
-
-const mockRefreshExpenses = jest.fn();
+const mockClearExpenses = jest.fn();
+const mockIsLoading = false;
 jest.mock('@/store/useExpenseStore', () => ({
-  useExpenseStore: jest.fn(() => mockRefreshExpenses),
+  useExpenseStore: jest.fn(
+    (selector: (state: { clearExpenses: jest.Mock; isLoading: boolean }) => unknown) =>
+      selector({ clearExpenses: mockClearExpenses, isLoading: mockIsLoading }),
+  ),
 }));
 
 jest.spyOn(Alert, 'alert');
@@ -54,6 +51,7 @@ describe('SettingsScreen', () => {
   });
 
   it('executes delete on confirm', async () => {
+    mockClearExpenses.mockResolvedValue(undefined);
     const { getByText } = render(<SettingsScreen />);
     fireEvent.press(getByText('Clear All Data'));
 
@@ -65,12 +63,12 @@ describe('SettingsScreen', () => {
       await deleteButton.onPress?.();
     });
 
-    expect(expenseService.deleteAll).toHaveBeenCalled();
-    expect(mockRefreshExpenses).toHaveBeenCalled();
+    expect(mockClearExpenses).toHaveBeenCalled();
+    expect(Alert.alert).toHaveBeenCalledWith('Success', expect.any(String));
   });
 
   it('handles delete error', async () => {
-    (expenseService.deleteAll as jest.Mock).mockRejectedValueOnce(new Error('Fail'));
+    mockClearExpenses.mockRejectedValueOnce(new Error('Fail'));
     const { getByText } = render(<SettingsScreen />);
     fireEvent.press(getByText('Clear All Data'));
 

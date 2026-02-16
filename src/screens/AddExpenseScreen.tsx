@@ -6,9 +6,10 @@
  */
 
 import { CATEGORIES } from '@/constants/categories';
-import { APP_CONFIG } from '@/constants/config';
+import { Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
 import { useAddExpense } from '@/hooks/useAddExpense';
+import { getCurrencySymbol } from '@/utils/currency';
 import { useNavigation } from '@react-navigation/native';
 import { format } from 'date-fns';
 import React from 'react';
@@ -26,20 +27,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-/** Currency symbol mapping for display */
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  INR: '₹',
-  USD: '$',
-  EUR: '€',
-  GBP: '£',
-};
-
-const currencySymbol = CURRENCY_SYMBOLS[APP_CONFIG.defaultCurrency] ?? '$';
-
 export function AddExpenseScreen() {
   const { colors } = useAppTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const symbol = getCurrencySymbol();
 
   const {
     amount,
@@ -62,23 +54,25 @@ export function AddExpenseScreen() {
         style={[styles.container, { backgroundColor: colors.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={[styles.header, { paddingTop: insets.top + 10, paddingHorizontal: 20 }]}>
+        <View
+          style={[styles.header, { paddingTop: insets.top + 10, paddingHorizontal: Spacing.lg }]}
+        >
           <Pressable
             onPress={() => navigation.goBack()}
             style={styles.backButton}
             accessibilityLabel="Cancel"
             accessibilityHint="Go back without saving"
           >
-            <Text style={{ color: colors.primary, fontSize: 16 }}>Cancel</Text>
+            <Text style={[styles.cancelText, { color: colors.primary }]}>Cancel</Text>
           </Pressable>
           <Text style={[styles.headerTitle, { color: colors.text }]}>New Expense</Text>
-          <View style={{ width: 50 }} />
+          <View style={styles.headerSpacer} />
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
           {/* Amount Input */}
           <View style={styles.amountContainer}>
-            <Text style={[styles.currencySymbol, { color: colors.text }]}>{currencySymbol}</Text>
+            <Text style={[styles.currencySymbol, { color: colors.text }]}>{symbol}</Text>
             <TextInput
               style={[styles.amountInput, { color: colors.text }]}
               placeholder="0.00"
@@ -183,55 +177,61 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 16,
+    paddingBottom: Spacing.base,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: Typography.fontSize.md,
+    fontWeight: Typography.fontWeight.semiBold,
+  },
+  cancelText: {
+    fontSize: Typography.fontSize.base,
+  },
+  headerSpacer: {
+    width: 50,
   },
   backButton: {
-    padding: 8,
+    padding: Spacing.sm,
   },
   content: {
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.lg,
     paddingBottom: 100,
   },
   amountContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 30,
+    marginVertical: Spacing['3xl'],
   },
   currencySymbol: {
-    fontSize: 32,
-    fontWeight: '600',
-    marginRight: 4,
+    fontSize: Typography.fontSize['2xl'],
+    fontWeight: Typography.fontWeight.semiBold,
+    marginRight: Spacing.xs,
   },
   amountInput: {
     fontSize: 48,
-    fontWeight: '700',
+    fontWeight: Typography.fontWeight.bold,
     minWidth: 100,
     textAlign: 'center',
   },
   inputGroup: {
-    padding: 16,
+    padding: Spacing.base,
     borderRadius: 12,
-    marginBottom: 24,
+    marginBottom: Spacing.xl,
   },
   textInput: {
-    fontSize: 17,
+    fontSize: Typography.fontSize.md,
   },
   sectionLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 12,
-    marginLeft: 4,
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.semiBold,
+    marginBottom: Spacing.md,
+    marginLeft: Spacing.xs,
   },
   categoriesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
-    marginBottom: 24,
+    marginBottom: Spacing.xl,
   },
   categoryChip: {
     flexDirection: 'row',
@@ -243,31 +243,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   categoryIcon: {
-    fontSize: 16,
-    marginRight: 6,
+    fontSize: Typography.fontSize.base,
+    marginRight: Spacing.sm,
   },
   categoryName: {
-    fontSize: 14,
+    fontSize: Typography.fontSize.sm,
   },
   dateText: {
-    fontSize: 16,
+    fontSize: Typography.fontSize.base,
   },
   footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 20,
+    padding: Spacing.lg,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   saveButton: {
-    paddingVertical: 16,
+    paddingVertical: Spacing.base,
     borderRadius: 14,
     alignItems: 'center',
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: Typography.fontSize.md,
+    fontWeight: Typography.fontWeight.semiBold,
   },
 });

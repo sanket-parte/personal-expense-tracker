@@ -25,7 +25,7 @@ describe('TransactionList', () => {
     const { getByText } = render(<TransactionList items={[mockExpense]} />);
 
     expect(getByText('Test Expense')).toBeTruthy();
-    expect(getByText('-$50.00')).toBeTruthy();
+    expect(getByText('-₹50.00')).toBeTruthy();
   });
 
   it('renders empty state when no items', () => {
