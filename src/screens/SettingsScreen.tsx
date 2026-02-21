@@ -2,14 +2,15 @@
  * SettingsScreen
  *
  * Application settings interface providing appearance preferences
- * and data management actions (e.g., clear all expenses).
+ * and data management actions using Card and Button primitives.
  */
 
+import { Button, Card, CardBody, CardHeader } from '@/components/ui';
 import { Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
 import { useExpenseStore } from '@/store/useExpenseStore';
 import React, { useCallback } from 'react';
-import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function SettingsScreen() {
@@ -50,41 +51,48 @@ export function SettingsScreen() {
 
       <View style={styles.content}>
         {/* Appearance Section */}
-        <View style={[styles.section, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>APPEARANCE</Text>
-          <View style={[styles.row, { borderBottomColor: colors.borderLight }]}>
-            <Text style={[styles.rowLabel, { color: colors.text }]}>Dark Mode</Text>
-            <Switch
-              value={isDark}
-              onValueChange={() => {
-                Alert.alert(
-                  'Info',
-                  'Theme mimics system settings. Change your device theme to switch.',
-                );
-              }}
-            />
-          </View>
-        </View>
+        <Card>
+          <CardHeader>
+            <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>APPEARANCE</Text>
+          </CardHeader>
+          <CardBody>
+            <View style={styles.row}>
+              <Text style={[styles.rowLabel, { color: colors.text }]}>Dark Mode</Text>
+              <Switch
+                value={isDark}
+                onValueChange={() => {
+                  Alert.alert(
+                    'Info',
+                    'Theme mimics system settings. Change your device theme to switch.',
+                  );
+                }}
+                accessibilityLabel="Dark mode toggle"
+                accessibilityHint="Theme follows system settings"
+              />
+            </View>
+          </CardBody>
+        </Card>
 
         {/* Data Section */}
-        <View style={[styles.section, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>
-            DATA MANAGEMENT
-          </Text>
-          <Pressable
-            style={({ pressed }) => [
-              styles.row,
-              { opacity: pressed ? 0.7 : 1, borderBottomWidth: 0 },
-            ]}
-            onPress={handleClearData}
-            disabled={isLoading}
-            testID="clear-data-button"
-          >
-            <Text style={[styles.rowLabel, { color: colors.error }]}>
-              {isLoading ? 'Clearing...' : 'Clear All Data'}
+        <Card>
+          <CardHeader>
+            <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>
+              DATA MANAGEMENT
             </Text>
-          </Pressable>
-        </View>
+          </CardHeader>
+          <CardBody>
+            <Button
+              variant="destructive"
+              title={isLoading ? 'Clearing...' : 'Clear All Data'}
+              onPress={handleClearData}
+              disabled={isLoading}
+              isLoading={isLoading}
+              testID="clear-data-button"
+              accessibilityLabel="Clear all expense data"
+              accessibilityHint="Delete all saved expenses permanently"
+            />
+          </CardBody>
+        </Card>
 
         <Text style={[styles.version, { color: colors.textTertiary }]}>Version 1.0.0 (MVP)</Text>
       </View>
@@ -107,24 +115,14 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.lg,
   },
-  section: {
-    borderRadius: 12,
-    marginBottom: Spacing.xl,
-    overflow: 'hidden',
-  },
   sectionHeader: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semiBold,
-    paddingHorizontal: Spacing.base,
-    paddingTop: Spacing.base,
-    paddingBottom: Spacing.sm,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.base,
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   rowLabel: {
     fontSize: Typography.fontSize.base,

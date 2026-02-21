@@ -5,8 +5,9 @@
  * amount, title, category, and date with keyboard-aware layout.
  */
 
+import { AnimatedPressable, Button } from '@/components/ui';
 import { CATEGORIES } from '@/constants/categories';
-import { Spacing, Typography } from '@/constants/theme';
+import { BorderRadius, Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
 import { useAddExpense } from '@/hooks/useAddExpense';
 import { getCurrencySymbol } from '@/utils/currency';
@@ -103,8 +104,9 @@ export function AddExpenseScreen() {
           <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>Category</Text>
           <View style={styles.categoriesGrid}>
             {CATEGORIES.map((cat) => (
-              <Pressable
+              <AnimatedPressable
                 key={cat.id}
+                scaleValue={0.92}
                 style={[
                   styles.categoryChip,
                   {
@@ -127,7 +129,7 @@ export function AddExpenseScreen() {
                 >
                   {cat.name}
                 </Text>
-              </Pressable>
+              </AnimatedPressable>
             ))}
           </View>
 
@@ -147,22 +149,15 @@ export function AddExpenseScreen() {
             { paddingBottom: insets.bottom + 10, borderTopColor: colors.border },
           ]}
         >
-          <Pressable
-            style={[
-              styles.saveButton,
-              {
-                backgroundColor: colors.primary,
-                opacity: isDisabled ? 0.6 : 1,
-              },
-            ]}
+          <Button
+            title={isLoading ? 'Saving...' : 'Save Expense'}
             onPress={handleSave}
             disabled={isDisabled}
+            isLoading={isLoading}
             testID="save-button"
             accessibilityLabel="Save expense"
             accessibilityHint="Save the expense entry"
-          >
-            <Text style={styles.saveButtonText}>{isLoading ? 'Saving...' : 'Save Expense'}</Text>
-          </Pressable>
+          />
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -194,7 +189,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: 100,
+    paddingBottom: Spacing['5xl'] + Spacing['3xl'],
   },
   amountContainer: {
     flexDirection: 'row',
@@ -208,14 +203,14 @@ const styles = StyleSheet.create({
     marginRight: Spacing.xs,
   },
   amountInput: {
-    fontSize: 48,
+    fontSize: Typography.fontSize['4xl'],
     fontWeight: Typography.fontWeight.bold,
     minWidth: 100,
     textAlign: 'center',
   },
   inputGroup: {
     padding: Spacing.base,
-    borderRadius: 12,
+    borderRadius: BorderRadius.md,
     marginBottom: Spacing.xl,
   },
   textInput: {
@@ -230,15 +225,15 @@ const styles = StyleSheet.create({
   categoriesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: Spacing.md,
     marginBottom: Spacing.xl,
   },
   categoryChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 20,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.base,
+    borderRadius: BorderRadius.xl,
     minWidth: '30%',
     justifyContent: 'center',
   },
@@ -259,15 +254,5 @@ const styles = StyleSheet.create({
     right: 0,
     padding: Spacing.lg,
     borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  saveButton: {
-    paddingVertical: Spacing.base,
-    borderRadius: 14,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: '#FFFFFF',
-    fontSize: Typography.fontSize.md,
-    fontWeight: Typography.fontWeight.semiBold,
   },
 });

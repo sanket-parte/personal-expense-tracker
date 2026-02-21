@@ -114,8 +114,9 @@ describe('AddExpenseScreen', () => {
       handleSave: mockHandleSave,
     });
 
-    const { getByText, getByTestId } = render(<AddExpenseScreen />);
-    expect(getByText('Saving...')).toBeTruthy();
+    const { getByTestId, queryByText } = render(<AddExpenseScreen />);
+    // Button shows a spinner (ActivityIndicator) instead of text when isLoading
+    expect(queryByText('Save Expense')).toBeNull();
     // isDisabled = !isValid || isLoading, so disabled should be true
     expect(getByTestId('save-button').props.accessibilityState.disabled).toBe(true);
   });

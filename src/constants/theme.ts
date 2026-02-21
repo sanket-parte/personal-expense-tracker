@@ -30,6 +30,8 @@ export const Colors = {
     successLight: '#D1FAE5',
     info: '#3B82F6',
     infoLight: '#DBEAFE',
+    onPrimary: '#FFFFFF',
+    onPrimaryMuted: 'rgba(255, 255, 255, 0.8)',
     shadow: 'rgba(0, 0, 0, 0.08)',
   },
   dark: {
@@ -55,6 +57,8 @@ export const Colors = {
     successLight: '#064E3B',
     info: '#60A5FA',
     infoLight: '#1E3A5F',
+    onPrimary: '#FFFFFF',
+    onPrimaryMuted: 'rgba(255, 255, 255, 0.8)',
     shadow: 'rgba(0, 0, 0, 0.3)',
   },
 } as const;
@@ -75,6 +79,7 @@ export const Typography = {
     xl: 24,
     '2xl': 30,
     '3xl': 36,
+    '4xl': 48,
   },
   lineHeight: {
     xs: 16,
@@ -85,6 +90,7 @@ export const Typography = {
     xl: 32,
     '2xl': 38,
     '3xl': 44,
+    '4xl': 56,
   },
   fontWeight: {
     regular: '400' as const,

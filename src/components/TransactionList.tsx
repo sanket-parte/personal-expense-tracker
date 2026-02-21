@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: Spacing.base,
   },
   icon: {
     fontSize: Typography.fontSize.lg,

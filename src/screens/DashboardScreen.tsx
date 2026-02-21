@@ -2,31 +2,41 @@
  * DashboardScreen
  *
  * Main landing screen displaying a financial summary card and
- * a list of recent expense transactions.
+ * a list of recent expense transactions with entrance animations
+ * and pull-to-refresh support.
  */
 
-import { SummaryCard, TransactionList } from '@/components';
-import { Spacing, Typography } from '@/constants/theme';
+import { EmptyState, SummaryCard, TransactionList } from '@/components';
+import { FadeInView, SkeletonPlaceholder } from '@/components/ui';
+import { BorderRadius, Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
 import { useExpenseStore } from '@/store/useExpenseStore';
 import type { AppTabParamList } from '@/types/navigation';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function DashboardScreen() {
   const { colors, isDark } = useAppTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<BottomTabNavigationProp<AppTabParamList>>();
-  const { items, refreshExpenses } = useExpenseStore();
+  const { items, refreshExpenses, isLoading } = useExpenseStore();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     refreshExpenses();
   }, [refreshExpenses]);
 
-  // Derived state — items already ordered by date desc from expenseService
   const totalExpenses = useMemo(() => {
     return items.reduce((sum, item) => sum + item.amount, 0);
   }, [items]);
@@ -38,6 +48,25 @@ export function DashboardScreen() {
   const handleSeeAll = useCallback(() => {
     navigation.navigate('History');
   }, [navigation]);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await refreshExpenses();
+    setIsRefreshing(false);
+  }, [refreshExpenses]);
+
+  /** Render skeleton placeholders while loading initial data */
+  const renderSkeleton = () => (
+    <View style={styles.skeletonContainer}>
+      <SkeletonPlaceholder width="100%" height={140} borderRadius={BorderRadius.xl} />
+      <SkeletonPlaceholder width="50%" height={20} borderRadius={BorderRadius.sm} />
+      {[1, 2, 3].map((i) => (
+        <SkeletonPlaceholder key={i} width="100%" height={72} borderRadius={BorderRadius.lg} />
+      ))}
+    </View>
+  );
+
+  const isInitialLoading = isLoading && items.length === 0;
 
   return (
     <View
@@ -51,25 +80,48 @@ export function DashboardScreen() {
         </View>
       </View>
 
-      <View style={styles.content}>
-        <SummaryCard total={totalExpenses} />
+      {isInitialLoading ? (
+        renderSkeleton()
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.content}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={colors.primary}
+            />
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          <FadeInView>
+            <SummaryCard total={totalExpenses} />
+          </FadeInView>
 
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
-          <Pressable
-            onPress={handleSeeAll}
-            accessibilityLabel="See all transactions"
-            accessibilityHint="Navigate to the full transaction history"
-          >
-            <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
-          </Pressable>
-        </View>
+          <FadeInView delay={100}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Activity</Text>
+              <Pressable
+                onPress={handleSeeAll}
+                accessibilityLabel="See all transactions"
+                accessibilityHint="Navigate to the full transaction history"
+              >
+                <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
+              </Pressable>
+            </View>
 
-        <TransactionList
-          items={recentTransactions}
-          scrollEnabled={false} // Dashboard scrolls if needed, or list is short enough
-        />
-      </View>
+            {recentTransactions.length === 0 ? (
+              <EmptyState
+                icon="💰"
+                title="No expenses yet"
+                subtitle="Tap + to add your first expense"
+              />
+            ) : (
+              <TransactionList items={recentTransactions} scrollEnabled={false} />
+            )}
+          </FadeInView>
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -94,8 +146,8 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.bold,
   },
   content: {
-    flex: 1,
     paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.lg,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -110,5 +162,9 @@ const styles = StyleSheet.create({
   seeAll: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
+  },
+  skeletonContainer: {
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.base,
   },
 });

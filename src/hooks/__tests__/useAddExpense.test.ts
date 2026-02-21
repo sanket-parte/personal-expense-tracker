@@ -73,6 +73,19 @@ describe('useAddExpense', () => {
     });
 
     expect(mockAddExpense).toHaveBeenCalled();
+    // goBack is now called via Alert callback — verify Alert was shown
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Saved!',
+      'Your expense has been recorded.',
+      expect.any(Array),
+    );
+
+    // Simulate pressing "OK" in the alert to trigger goBack
+    const alertCall = (Alert.alert as jest.Mock).mock.calls.find((call) => call[0] === 'Saved!');
+    const okButton = alertCall?.[2]?.[0];
+    act(() => {
+      okButton?.onPress?.();
+    });
     expect(mockGoBack).toHaveBeenCalled();
   });
 

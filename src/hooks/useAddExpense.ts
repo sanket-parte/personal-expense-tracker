@@ -49,7 +49,12 @@ export function useAddExpense() {
         date: date,
         categoryId: categoryId,
       });
-      navigation.goBack();
+      Alert.alert('Saved!', 'Your expense has been recorded.', [
+        {
+          text: 'OK',
+          onPress: () => navigation.goBack(),
+        },
+      ]);
     } catch {
       Alert.alert('Error', 'Failed to save expense. Please try again.');
     }

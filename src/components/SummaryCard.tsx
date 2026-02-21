@@ -5,7 +5,7 @@
  * Adapts to the current theme and configured currency.
  */
 
-import { Shadows } from '@/constants/theme';
+import { BorderRadius, Shadows, Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
 import { getCurrencySymbol } from '@/utils/currency';
 import React from 'react';
@@ -21,39 +21,36 @@ export function SummaryCard({ total }: SummaryCardProps) {
 
   return (
     <View style={[styles.card, { backgroundColor: colors.primary }]}>
-      <Text style={styles.label}>Total Expenses</Text>
-      <Text style={styles.amount}>
+      <Text style={[styles.label, { color: colors.onPrimaryMuted }]}>Total Expenses</Text>
+      <Text style={[styles.amount, { color: colors.onPrimary }]}>
         {symbol}
         {total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </Text>
-      <Text style={styles.period}>This Month</Text>
+      <Text style={[styles.period, { color: colors.onPrimaryMuted }]}>This Month</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 20,
-    padding: 24,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
     alignItems: 'center',
     justifyContent: 'center',
     ...Shadows.lg,
-    marginBottom: 24,
+    marginBottom: Spacing.xl,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.medium,
+    marginBottom: Spacing.sm,
   },
   amount: {
-    fontSize: 36,
-    fontWeight: '700',
-    marginBottom: 4,
-    color: '#FFFFFF',
+    fontSize: Typography.fontSize['3xl'],
+    fontWeight: Typography.fontWeight.bold,
+    marginBottom: Spacing.xs,
   },
   period: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: Typography.fontSize.xs,
   },
 });
