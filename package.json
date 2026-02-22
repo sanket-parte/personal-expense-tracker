@@ -24,6 +24,7 @@
     "format:check": "prettier --check 'src/**/*.{ts,tsx,json}'",
     "typecheck": "tsc --noEmit",
     "test": "jest",
+    "test:e2e": "maestro test .maestro/",
     "prepare": "husky"
   },
   "dependencies": {

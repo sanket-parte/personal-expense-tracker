@@ -105,6 +105,7 @@ export function DashboardScreen() {
                 onPress={handleSeeAll}
                 accessibilityLabel="See all transactions"
                 accessibilityHint="Navigate to the full transaction history"
+                testID="see-all-transactions"
               >
                 <Text style={[styles.seeAll, { color: colors.primary }]}>See All</Text>
               </Pressable>

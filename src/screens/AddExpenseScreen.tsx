@@ -86,6 +86,7 @@ export function AddExpenseScreen({ route }: any) {
               onChangeText={setAmount}
               accessibilityLabel="Expense amount"
               accessibilityHint="Enter the expense amount"
+              testID="amount-input"
               autoFocus
             />
           </View>
@@ -100,6 +101,7 @@ export function AddExpenseScreen({ route }: any) {
               onChangeText={setTitle}
               accessibilityLabel="Expense description"
               accessibilityHint="Enter a description for this expense"
+              testID="title-input"
             />
           </View>
 
@@ -119,6 +121,7 @@ export function AddExpenseScreen({ route }: any) {
                 onPress={() => setCategoryId(cat.id)}
                 accessibilityLabel={`Category ${cat.name}`}
                 accessibilityHint={`Select ${cat.name} as the expense category`}
+                testID={`category-${cat.id}`}
               >
                 <Text style={styles.categoryIcon}>{cat.icon}</Text>
                 <Text

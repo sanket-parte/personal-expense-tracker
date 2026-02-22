@@ -41,7 +41,7 @@ describe('ScanReceiptScreen', () => {
     };
     (scanReceiptFromCamera as jest.Mock).mockResolvedValueOnce(mockExpense);
 
-    const { getByText, queryByText } = render(<ScanReceiptScreen />);
+    const { getByText } = render(<ScanReceiptScreen />);
 
     await act(async () => {
       fireEvent.press(getByText('Take Photo'));

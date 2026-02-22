@@ -23,7 +23,7 @@ describe('useAddExpense', () => {
     (useNavigation as jest.Mock).mockReturnValue(mockNavigate);
 
     // Default mock implementation for zustand store selector hook
-    (useExpenseStore as jest.Mock).mockImplementation((selector) => {
+    (useExpenseStore as unknown as jest.Mock).mockImplementation((selector) => {
       // Mock the state object that the selector would receive
       return selector({
         addExpense: mockAddExpense,

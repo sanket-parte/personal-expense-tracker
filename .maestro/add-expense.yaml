@@ -1,0 +1,22 @@
+appId: com.anonymous.personalexpensetracker
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: 'tab-bar-add'
+- tapOn:
+    id: 'manual-entry-button'
+- tapOn:
+    id: 'amount-input'
+- inputText: '125.50'
+- tapOn:
+    id: 'title-input'
+- inputText: 'Weekly Groceries'
+- tapOn:
+    id: 'category-food' # Relies on default `cat.id` matching category mappings constants.
+- tapOn:
+    id: 'save-button'
+- assertVisible:
+    text: 'Weekly Groceries'
+- assertVisible:
+    text: '125.50'

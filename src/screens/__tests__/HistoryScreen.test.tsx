@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { act, fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 import { HistoryScreen } from '../HistoryScreen';

@@ -1,0 +1,10 @@
+appId: com.anonymous.personalexpensetracker
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    text: 'Welcome back,'
+- assertVisible:
+    text: 'My Wallet'
+- assertVisible:
+    text: 'Recent Activity'

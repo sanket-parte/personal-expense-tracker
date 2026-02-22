@@ -31,7 +31,7 @@ describe('NLAddScreen', () => {
   });
 
   it('validates empty input', async () => {
-    const { getByText, getByPlaceholderText, findByText } = render(<NLAddScreen />);
+    const { getByText, getByPlaceholderText } = render(<NLAddScreen />);
     const input = getByPlaceholderText('e.g. Spent $15 on coffee this morning');
 
     // Attempt save with empty text

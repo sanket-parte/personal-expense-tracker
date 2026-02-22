@@ -64,6 +64,7 @@ export function AppNavigator() {
               <Pressable
                 style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
                 onPress={() => setQuickAddVisible(true)}
+                testID="tab-bar-add"
               >
                 <Ionicons name="add-circle" size={28} color={colors.textSecondary} />
                 <Text style={{ fontSize: 10, color: colors.textSecondary, marginTop: 2 }}>Add</Text>

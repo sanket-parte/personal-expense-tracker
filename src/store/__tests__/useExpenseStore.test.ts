@@ -1,5 +1,6 @@
 import { expenseService } from '@/services/expenseService';
 import { act, renderHook } from '@testing-library/react-native';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useExpenseStore } from '../useExpenseStore';
 
 jest.mock('@/services/expenseService', () => ({

@@ -51,6 +51,7 @@ export function QuickAddActionSheet({
               { borderBottomColor: colors.border, borderBottomWidth: 1 },
             ]}
             onPress={() => handleAction('AddExpense')}
+            testID="manual-entry-button"
           >
             <View style={[styles.iconBox, { backgroundColor: colors.primary + '15' }]}>
               <Ionicons name="add" size={24} color={colors.primary} />

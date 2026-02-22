@@ -136,7 +136,7 @@ describe('DashboardScreen', () => {
     mockStoreState.items = [];
 
     // Rerender so selector picks up update
-    const { getByTestId, queryByText } = render(<DashboardScreen />);
+    const { queryByText } = render(<DashboardScreen />);
 
     // We expect main content to be hidden (like Recent Transactions text)
     expect(queryByText('Recent Transactions')).toBeNull();

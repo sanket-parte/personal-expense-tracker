@@ -12,7 +12,7 @@ describe('receiptScanner service', () => {
   describe('scanReceiptFromCamera', () => {
     it('returns null if permissions denied', async () => {
       jest.spyOn(ImagePicker, 'requestCameraPermissionsAsync').mockResolvedValueOnce({
-        status: 'denied',
+        status: 'denied' as unknown as ImagePicker.PermissionStatus,
         expires: 'never',
         granted: false,
         canAskAgain: true,
@@ -29,7 +29,7 @@ describe('receiptScanner service', () => {
 
     it('returns null if camera capture is canceled', async () => {
       jest.spyOn(ImagePicker, 'requestCameraPermissionsAsync').mockResolvedValueOnce({
-        status: 'granted',
+        status: 'granted' as unknown as ImagePicker.PermissionStatus,
         expires: 'never',
         granted: true,
         canAskAgain: true,
@@ -47,7 +47,7 @@ describe('receiptScanner service', () => {
 
     it('returns mocked parsed data on success', async () => {
       jest.spyOn(ImagePicker, 'requestCameraPermissionsAsync').mockResolvedValueOnce({
-        status: 'granted',
+        status: 'granted' as unknown as ImagePicker.PermissionStatus,
         expires: 'never',
         granted: true,
         canAskAgain: true,
@@ -79,7 +79,7 @@ describe('receiptScanner service', () => {
   describe('scanReceiptFromGallery', () => {
     it('returns null if permissions denied', async () => {
       jest.spyOn(ImagePicker, 'requestMediaLibraryPermissionsAsync').mockResolvedValueOnce({
-        status: 'denied',
+        status: 'denied' as unknown as ImagePicker.PermissionStatus,
         expires: 'never',
         granted: false,
         canAskAgain: true,
@@ -96,7 +96,7 @@ describe('receiptScanner service', () => {
 
     it('returns mocked parsed data on success', async () => {
       jest.spyOn(ImagePicker, 'requestMediaLibraryPermissionsAsync').mockResolvedValueOnce({
-        status: 'granted',
+        status: 'granted' as unknown as ImagePicker.PermissionStatus,
         expires: 'never',
         granted: true,
         canAskAgain: true,

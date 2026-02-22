@@ -57,6 +57,7 @@ describe('flattenExpensesForFlashList', () => {
       { id: 1, amount: 10, title: 'A', date: today, categoryId: 1, createdAt: today },
       { id: 2, amount: 20, title: 'B', date: today, categoryId: 1, createdAt: today },
       { id: 3, amount: 30, title: 'C', date: yesterday, categoryId: 1, createdAt: yesterday },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any; // Cast bypass for mock
 
     const { data, stickyHeaderIndices } = flattenExpensesForFlashList(expenses);

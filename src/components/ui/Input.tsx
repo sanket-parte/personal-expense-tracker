@@ -16,6 +16,7 @@ interface InputProps extends Omit<TextInputProps, 'style'> {
   label?: string;
   error?: string;
   helperText?: string;
+  testID?: string;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(
@@ -40,6 +41,7 @@ export const Input = forwardRef<TextInput, InputProps>(
           ]}
           placeholderTextColor={colors.textTertiary}
           accessibilityLabel={label}
+          testID={rest.testID}
           {...rest}
         />
         {error ? <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text> : null}
