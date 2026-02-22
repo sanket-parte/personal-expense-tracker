@@ -24,7 +24,7 @@
     "format:check": "prettier --check 'src/**/*.{ts,tsx,json}'",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:e2e": "maestro test .maestro/",
+    "test:e2e": "JAVA_HOME=/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home PATH=$PATH:$HOME/.maestro/bin maestro test .maestro/",
     "prepare": "husky"
   },
   "dependencies": {
