@@ -18,13 +18,13 @@ interface AlertButton {
 }
 
 // Mock dependencies
-const mockClearExpenses = jest.fn();
-const mockIsLoading = false;
+const mockStoreState = {
+  clearExpenses: jest.fn(),
+  isLoading: false,
+};
+
 jest.mock('@/store/useExpenseStore', () => ({
-  useExpenseStore: jest.fn(
-    (selector: (state: { clearExpenses: jest.Mock; isLoading: boolean }) => unknown) =>
-      selector({ clearExpenses: mockClearExpenses, isLoading: mockIsLoading }),
-  ),
+  useExpenseStore: jest.fn((selector) => selector(mockStoreState)),
 }));
 
 jest.spyOn(Alert, 'alert');
@@ -51,7 +51,7 @@ describe('SettingsScreen', () => {
   });
 
   it('executes delete on confirm', async () => {
-    mockClearExpenses.mockResolvedValue(undefined);
+    mockStoreState.clearExpenses.mockResolvedValue(undefined);
     const { getByText } = render(<SettingsScreen />);
     fireEvent.press(getByText('Clear All Data'));
 
@@ -63,12 +63,12 @@ describe('SettingsScreen', () => {
       await deleteButton.onPress?.();
     });
 
-    expect(mockClearExpenses).toHaveBeenCalled();
+    expect(mockStoreState.clearExpenses).toHaveBeenCalled();
     expect(Alert.alert).toHaveBeenCalledWith('Success', expect.any(String));
   });
 
   it('handles delete error', async () => {
-    mockClearExpenses.mockRejectedValueOnce(new Error('Fail'));
+    mockStoreState.clearExpenses.mockRejectedValueOnce(new Error('Fail'));
     const { getByText } = render(<SettingsScreen />);
     fireEvent.press(getByText('Clear All Data'));
 
@@ -80,6 +80,14 @@ describe('SettingsScreen', () => {
     });
 
     expect(Alert.alert).toHaveBeenCalledWith('Error', expect.any(String));
+  });
+
+  it('updates title when loading is true', () => {
+    mockStoreState.isLoading = true;
+    const { getByTestId, queryByText } = render(<SettingsScreen />);
+    const button = getByTestId('clear-data-button');
+    expect(button.props.accessibilityState.disabled).toBe(true);
+    expect(queryByText('Clear All Data')).toBeNull();
   });
 
   it('exercises Pressable style function for both pressed states', () => {

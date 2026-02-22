@@ -52,6 +52,7 @@ export function SkeletonPlaceholder({
 
   return (
     <Animated.View
+      testID="skeleton-placeholder"
       style={[
         styles.skeleton,
         {

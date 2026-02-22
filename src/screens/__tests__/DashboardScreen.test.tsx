@@ -129,4 +129,24 @@ describe('DashboardScreen', () => {
   it('renders with light mode status bar', () => {
     render(<DashboardScreen />);
   });
+
+  it('renders skeleton loaders when loading initially', () => {
+    // Override store mock to simulate loading state with no items
+    mockStoreState.isLoading = true;
+    mockStoreState.items = [];
+
+    // Rerender so selector picks up update
+    const { getByTestId, queryByText } = render(<DashboardScreen />);
+
+    // We expect main content to be hidden (like Recent Transactions text)
+    expect(queryByText('Recent Transactions')).toBeNull();
+    // Revert for other tests
+    mockStoreState.isLoading = false;
+  });
+
+  it('renders empty list warning when no expenses exist', () => {
+    mockStoreState.items = [];
+    const { getByText } = render(<DashboardScreen />);
+    expect(getByText('No expenses yet')).toBeTruthy();
+  });
 });

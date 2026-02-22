@@ -65,6 +65,8 @@ export async function parseNaturalLanguageExpense(text: string): Promise<ParsedE
           .replace(/\b[\d.]+\s*(dollars|bucks)\b/gi, '')
           .replace(/\byesterday\b/gi, '')
           .replace(/\btoday\b/gi, '')
+          .replace(/\b\d+\s+days ago\b/gi, '')
+          .replace(/\b[\d.]+\b/g, '') // strip dangling raw numbers (amounts) remaining
           .replace(/\b(?:spent|on|bought|for)\b/gi, '')
           .replace(/\s+/g, ' ')
           .trim();

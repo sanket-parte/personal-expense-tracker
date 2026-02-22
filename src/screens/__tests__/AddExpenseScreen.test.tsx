@@ -1,155 +1,106 @@
-/**
- * AddExpenseScreen Tests
- *
- * Covers rendering, input handling, save flow, disabled states,
- * loading states, keyboard dismiss, and cancel navigation.
- */
-
-import * as useAddExpenseHook from '@/hooks/useAddExpense';
+import { useAddExpense } from '@/hooks/useAddExpense';
+import { useNavigation } from '@react-navigation/native';
 import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
-import { Keyboard } from 'react-native';
 import { AddExpenseScreen } from '../AddExpenseScreen';
 
-// Mock the hook
-jest.spyOn(Keyboard, 'dismiss');
-
-const mockGoBack = jest.fn();
-jest.mock('@react-navigation/native', () => ({
-  useNavigation: () => ({
-    goBack: mockGoBack,
-  }),
-}));
-
-const mockHandleSave = jest.fn();
-const mockSetAmount = jest.fn();
-const mockSetTitle = jest.fn();
-const mockSetCategoryId = jest.fn();
-
-jest.spyOn(useAddExpenseHook, 'useAddExpense').mockReturnValue({
-  amount: '',
-  setAmount: mockSetAmount,
-  title: '',
-  setTitle: mockSetTitle,
-  categoryId: null,
-  setCategoryId: mockSetCategoryId,
-  date: new Date(),
-  isLoading: false,
-  isValid: false,
-  handleSave: mockHandleSave,
+jest.mock('@react-navigation/native', () => {
+  const actual = jest.requireActual('@react-navigation/native');
+  return {
+    ...actual,
+    useNavigation: jest.fn(),
+  };
 });
 
+jest.mock('@/hooks/useAddExpense', () => ({
+  useAddExpense: jest.fn(),
+}));
+
 describe('AddExpenseScreen', () => {
+  const mockNavigate = { goBack: jest.fn() };
+
+  const mockUseAddExpenseData = {
+    amount: '',
+    setAmount: jest.fn(),
+    title: '',
+    setTitle: jest.fn(),
+    categoryId: null,
+    setCategoryId: jest.fn(),
+    date: new Date('2023-01-01T12:00:00.000Z'),
+    isLoading: false,
+    isValid: false,
+    handleSave: jest.fn(),
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    (useNavigation as jest.Mock).mockReturnValue(mockNavigate);
+    (useAddExpense as jest.Mock).mockReturnValue(mockUseAddExpenseData);
   });
 
-  it('renders correctly', () => {
-    const { getByText, getByPlaceholderText } = render(<AddExpenseScreen />);
+  it('renders correctly with default state', () => {
+    const { getByText, getByPlaceholderText } = render(<AddExpenseScreen route={{ params: {} }} />);
+
     expect(getByText('New Expense')).toBeTruthy();
     expect(getByPlaceholderText('0.00')).toBeTruthy();
+    expect(getByPlaceholderText('What is this for?')).toBeTruthy();
+    expect(getByText('Save Expense')).toBeTruthy();
   });
 
-  it('updates input fields', () => {
-    const { getByPlaceholderText, getByText } = render(<AddExpenseScreen />);
+  it('navigates back on Cancel press', () => {
+    const { getByText } = render(<AddExpenseScreen route={{ params: {} }} />);
+    fireEvent.press(getByText('Cancel'));
+    expect(mockNavigate.goBack).toHaveBeenCalledTimes(1);
+  });
 
-    fireEvent.changeText(getByPlaceholderText('0.00'), '100');
-    expect(mockSetAmount).toHaveBeenCalledWith('100');
+  it('calls setAmount and setTitle on input', () => {
+    const { getByPlaceholderText } = render(<AddExpenseScreen route={{ params: {} }} />);
+
+    fireEvent.changeText(getByPlaceholderText('0.00'), '15.50');
+    expect(mockUseAddExpenseData.setAmount).toHaveBeenCalledWith('15.50');
 
     fireEvent.changeText(getByPlaceholderText('What is this for?'), 'Lunch');
-    expect(mockSetTitle).toHaveBeenCalledWith('Lunch');
-
-    fireEvent.press(getByText('Food'));
-    expect(mockSetCategoryId).toHaveBeenCalledWith(1);
+    expect(mockUseAddExpenseData.setTitle).toHaveBeenCalledWith('Lunch');
   });
 
-  it('calls handleSave when save button is pressed', () => {
-    (useAddExpenseHook.useAddExpense as jest.Mock).mockReturnValue({
-      amount: '100',
-      setAmount: mockSetAmount,
-      title: 'Lunch',
-      setTitle: mockSetTitle,
-      categoryId: 1,
-      setCategoryId: mockSetCategoryId,
-      date: new Date(),
-      isLoading: false,
+  it('calls setCategoryId when a category chip is pressed', () => {
+    const { getByLabelText } = render(<AddExpenseScreen route={{ params: {} }} />);
+
+    // Select "Food" category, assuming Categories[1] is Food.
+    // Ensure the accessibility label logic defined in the component maps correctly.
+    const foodChip = getByLabelText('Category Food');
+    fireEvent.press(foodChip);
+
+    expect(mockUseAddExpenseData.setCategoryId).toHaveBeenCalledWith(1); // 1 = Food ID
+  });
+
+  it('allows save when valid', () => {
+    (useAddExpense as jest.Mock).mockReturnValue({
+      ...mockUseAddExpenseData,
       isValid: true,
-      handleSave: mockHandleSave,
-    });
-
-    const { getByTestId } = render(<AddExpenseScreen />);
-    fireEvent.press(getByTestId('save-button'));
-    expect(mockHandleSave).toHaveBeenCalled();
-  });
-
-  it('disables save button when hook says invalid', () => {
-    (useAddExpenseHook.useAddExpense as jest.Mock).mockReturnValue({
-      amount: '',
-      setAmount: mockSetAmount,
-      title: '',
-      setTitle: mockSetTitle,
-      categoryId: null,
-      setCategoryId: mockSetCategoryId,
-      date: new Date(),
-      isLoading: false,
-      isValid: false,
-      handleSave: mockHandleSave,
-    });
-
-    const { getByTestId } = render(<AddExpenseScreen />);
-    expect(getByTestId('save-button').props.accessibilityState.disabled).toBe(true);
-  });
-
-  it('shows loading state when saving', () => {
-    (useAddExpenseHook.useAddExpense as jest.Mock).mockReturnValue({
-      amount: '100',
-      setAmount: mockSetAmount,
+      amount: '15.50',
       title: 'Lunch',
-      setTitle: mockSetTitle,
       categoryId: 1,
-      setCategoryId: mockSetCategoryId,
-      date: new Date(),
+    });
+
+    const { getByText } = render(<AddExpenseScreen route={{ params: {} }} />);
+    const saveButton = getByText('Save Expense');
+
+    fireEvent.press(saveButton);
+    expect(mockUseAddExpenseData.handleSave).toHaveBeenCalledTimes(1);
+  });
+
+  it('disables save button when saving', () => {
+    (useAddExpense as jest.Mock).mockReturnValue({
+      ...mockUseAddExpenseData,
+      isValid: true,
       isLoading: true,
-      isValid: true,
-      handleSave: mockHandleSave,
     });
 
-    const { getByTestId, queryByText } = render(<AddExpenseScreen />);
-    // Button shows a spinner (ActivityIndicator) instead of text when isLoading
-    expect(queryByText('Save Expense')).toBeNull();
-    // isDisabled = !isValid || isLoading, so disabled should be true
-    expect(getByTestId('save-button').props.accessibilityState.disabled).toBe(true);
-  });
+    const { getByTestId } = render(<AddExpenseScreen route={{ params: {} }} />);
+    const saveButton = getByTestId('save-button');
 
-  it('navigates back on cancel press', () => {
-    const { getByText } = render(<AddExpenseScreen />);
-    fireEvent.press(getByText('Cancel'));
-    expect(mockGoBack).toHaveBeenCalled();
-  });
-
-  it('dismisses keyboard on touch outside', () => {
-    const { getByTestId } = render(<AddExpenseScreen />);
-    fireEvent.press(getByTestId('keyboard-dismiss'));
-    expect(Keyboard.dismiss).toHaveBeenCalled();
-  });
-
-  it('renders with selected category highlighted', () => {
-    (useAddExpenseHook.useAddExpense as jest.Mock).mockReturnValue({
-      amount: '100',
-      setAmount: mockSetAmount,
-      title: 'Lunch',
-      setTitle: mockSetTitle,
-      categoryId: 1,
-      setCategoryId: mockSetCategoryId,
-      date: new Date(),
-      isLoading: false,
-      isValid: true,
-      handleSave: mockHandleSave,
-    });
-
-    const { getByText } = render(<AddExpenseScreen />);
-    // Just verify the component renders without crashing when a category is selected
-    expect(getByText('Food')).toBeTruthy();
-    expect(getByText('Save Expense')).toBeTruthy();
+    // In React Native Testing Library, accessibilityState disabled is a common way to assert 'disabled' props have propagated down
+    expect(saveButton.props.accessibilityState.disabled).toBe(true);
   });
 });

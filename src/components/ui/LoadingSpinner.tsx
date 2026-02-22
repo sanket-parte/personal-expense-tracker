@@ -19,7 +19,7 @@ export function LoadingSpinner({ size = 'large', color }: LoadingSpinnerProps): 
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size={size} color={color ?? colors.primary} />
+      <ActivityIndicator testID="loading-spinner" size={size} color={color ?? colors.primary} />
     </View>
   );
 }
