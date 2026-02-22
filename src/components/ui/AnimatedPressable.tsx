@@ -16,6 +16,8 @@ interface AnimatedPressableProps extends Omit<PressableProps, 'style'> {
   style?: StyleProp<ViewStyle>;
 }
 
+const AnimatedPressableNode = Animated.createAnimatedComponent(Pressable);
+
 export function AnimatedPressable({
   children,
   scaleValue = 0.95,
@@ -43,10 +45,13 @@ export function AnimatedPressable({
   };
 
   return (
-    <Animated.View style={[{ transform: [{ scale }] }, style]}>
-      <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut} {...rest}>
-        {children}
-      </Pressable>
-    </Animated.View>
+    <AnimatedPressableNode
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={[{ transform: [{ scale }] }, style]}
+      {...rest}
+    >
+      {children}
+    </AnimatedPressableNode>
   );
 }

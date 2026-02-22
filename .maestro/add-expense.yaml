@@ -1,7 +1,11 @@
-appId: com.anonymous.personalexpensetracker
+appId: host.exp.Exponent
 ---
-- launchApp:
-    clearState: true
+- launchApp
+- tapOn: 'Personal Expense Tracker'
+- extendedWaitUntil:
+    visible:
+      id: 'tab-bar-add'
+    timeout: 30000
 - tapOn:
     id: 'tab-bar-add'
 - tapOn:
@@ -13,7 +17,7 @@ appId: com.anonymous.personalexpensetracker
     id: 'title-input'
 - inputText: 'Weekly Groceries'
 - tapOn:
-    id: 'category-food' # Relies on default `cat.id` matching category mappings constants.
+    id: 'category-1'
 - tapOn:
     id: 'save-button'
 - assertVisible:

@@ -1,9 +1,11 @@
-appId: com.anonymous.personalexpensetracker
+appId: host.exp.Exponent
 ---
-- launchApp:
-    clearState: true
-- assertVisible:
-    text: 'Welcome back,'
+- launchApp
+- tapOn: 'Personal Expense Tracker'
+- extendedWaitUntil:
+    visible:
+      text: 'Welcome back,'
+    timeout: 30000
 - assertVisible:
     text: 'My Wallet'
 - assertVisible:
