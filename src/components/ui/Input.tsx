@@ -43,7 +43,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             style,
           ]}
           placeholderTextColor={colors.textTertiary}
-          accessibilityLabel={label}
+          accessibilityLabel={label || rest.accessibilityLabel}
           testID={testID}
           {...rest}
         />

@@ -87,6 +87,7 @@ export function AddExpenseScreen({ route }: any) {
               placeholder="0.00"
               keyboardType="decimal-pad"
               testID="amount-input"
+              accessibilityLabel="Amount"
               style={styles.amountInput}
               containerStyle={{ marginBottom: 0 }}
             />
@@ -143,7 +144,7 @@ export function AddExpenseScreen({ route }: any) {
             <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>Date</Text>
             <View style={[styles.inputGroup, { backgroundColor: colors.surface }]}>
               <Text style={[styles.textInput, { color: colors.text }]}>
-                {new Date().toLocaleDateString('en-US', {
+                {new Date(date).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',

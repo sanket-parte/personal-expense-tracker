@@ -16,19 +16,14 @@ appId: host.exp.Exponent
     timeout: 30000
 - assertVisible:
     id: 'add-expense-view'
-- tapOn:
-    id: 'amount-input'
-- inputText:
-    id: 'amount-input'
-    text: '125.50'
+- tapOn: 'Amount'
+- inputText: '125.50'
 - hideKeyboard
 - tapOn: 'Title'
-- inputText:
-    id: 'title-input'
-    text: 'Weekly Groceries'
+- inputText: 'Weekly Groceries'
 - hideKeyboard
-- tapOn: 'Food'
 - tapOn:
-    id: 'save-button'
+    id: 'category-1'
+- tapOn: 'Save Expense'
 - assertVisible: 'Weekly Groceries'
 - assertVisible: '125.50'
