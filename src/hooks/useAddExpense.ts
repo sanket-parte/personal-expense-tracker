@@ -6,19 +6,22 @@
  */
 
 import { useExpenseStore } from '@/store/useExpenseStore';
+import type { ParsedExpenseData } from '@/types';
 import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
-export function useAddExpense() {
+export function useAddExpense(initialData?: ParsedExpenseData) {
   const navigation = useNavigation();
   const addExpense = useExpenseStore((state) => state.addExpense);
   const isLoading = useExpenseStore((state) => state.isLoading);
 
-  const [amount, setAmount] = useState('');
-  const [title, setTitle] = useState('');
-  const [categoryId, setCategoryId] = useState<number | null>(null);
-  const [date] = useState(new Date());
+  const [amount, setAmount] = useState(initialData?.amount ?? '');
+  const [title, setTitle] = useState(initialData?.title ?? '');
+  const [categoryId, setCategoryId] = useState<number | null>(initialData?.categoryId ?? null);
+
+  // Re-hydrate the ISO string back into a Date object so non-serializable errors don't occur
+  const [date] = useState(initialData?.date ? new Date(initialData.date) : new Date());
 
   const parsedAmount = Number(amount);
   const isAmountValid = !!amount && !isNaN(parsedAmount) && parsedAmount > 0;

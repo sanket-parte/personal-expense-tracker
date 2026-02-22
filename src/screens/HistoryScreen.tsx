@@ -1,18 +1,24 @@
 /**
  * HistoryScreen
  *
- * Displays all past expense transactions grouped by date
- * in a scrollable section list with pull-to-refresh support.
+ * Displays all past expense transactions using FlashList.
+ * Includes SearchBar and FilterChips for local filtering.
  */
 
 import { EmptyState, TransactionItem } from '@/components';
+import { FilterChips, SearchBar } from '@/components/ui';
 import { Spacing, Typography } from '@/constants/theme';
+import type { Expense } from '@/db/schema';
 import { useAppTheme } from '@/hooks';
 import { useExpenseStore } from '@/store/useExpenseStore';
-import { groupExpensesByDate } from '@/utils/dateHelpers';
+import { flattenExpensesForFlashList } from '@/utils/dateHelpers';
+import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
+import { RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Type alias for our flattened section structure
+export type HistoryListItem = string | Expense;
 
 export function HistoryScreen() {
   const { colors } = useAppTheme();
@@ -20,17 +26,34 @@ export function HistoryScreen() {
   const { items, refreshExpenses } = useExpenseStore();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // Local filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
+
   useEffect(() => {
     refreshExpenses();
   }, [refreshExpenses]);
-
-  const sections = useMemo(() => groupExpensesByDate(items), [items]);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     await refreshExpenses();
     setIsRefreshing(false);
   }, [refreshExpenses]);
+
+  // Apply local filters before grouping
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = activeCategoryId ? item.categoryId === activeCategoryId : true;
+      return matchesSearch && matchesCategory;
+    });
+  }, [items, searchQuery, activeCategoryId]);
+
+  // Flatten for FlashList
+  const { data: flattenedData, stickyHeaderIndices } = useMemo(
+    () => flattenExpensesForFlashList(filteredItems),
+    [filteredItems],
+  );
 
   return (
     <View
@@ -40,17 +63,34 @@ export function HistoryScreen() {
         <Text style={[styles.title, { color: colors.text }]}>History</Text>
       </View>
 
-      <SectionList
-        sections={sections}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <TransactionItem item={item} />}
-        renderSectionHeader={({ section: { title } }) => (
-          <View style={[styles.sectionHeader, { backgroundColor: colors.background }]}>
-            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
-          </View>
-        )}
+      <View style={styles.filtersContainer}>
+        <View style={styles.searchContainer}>
+          <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
+        </View>
+        <FilterChips activeCategoryId={activeCategoryId} onSelectCategory={setActiveCategoryId} />
+      </View>
+
+      <FlashList<HistoryListItem>
+        data={flattenedData}
+        keyExtractor={(item) => {
+          if (typeof item === 'string') return `header-${item}`;
+          return item.id.toString();
+        }}
+        // @ts-expect-error - FlashList union generic constraints issues mapped in review log
+        estimatedItemSize={75}
+        stickyHeaderIndices={stickyHeaderIndices}
+        getItemType={(item) => (typeof item === 'string' ? 'sectionHeader' : 'row')}
+        renderItem={({ item }) => {
+          if (typeof item === 'string') {
+            return (
+              <View style={[styles.sectionHeader, { backgroundColor: colors.background }]}>
+                <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{item}</Text>
+              </View>
+            );
+          }
+          return <TransactionItem item={item} />;
+        }}
         contentContainerStyle={styles.listContent}
-        stickySectionHeadersEnabled={true}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
@@ -59,11 +99,19 @@ export function HistoryScreen() {
           />
         }
         ListEmptyComponent={
-          <EmptyState
-            icon="📋"
-            title="No transactions found"
-            subtitle="Your expense history will appear here"
-          />
+          <View style={styles.emptyContainer}>
+            <EmptyState
+              icon={searchQuery || activeCategoryId ? '🔍' : '📋'}
+              title={
+                searchQuery || activeCategoryId ? 'No matching results' : 'No transactions found'
+              }
+              subtitle={
+                searchQuery || activeCategoryId
+                  ? 'Try adjusting your filters'
+                  : 'Your expense history will appear here'
+              }
+            />
+          </View>
         }
       />
     </View>
@@ -76,11 +124,19 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.base,
+    paddingTop: Spacing.base,
+    paddingBottom: Spacing.sm,
   },
   title: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
+  },
+  filtersContainer: {
+    paddingBottom: Spacing.sm,
+  },
+  searchContainer: {
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.sm,
   },
   listContent: {
     paddingHorizontal: Spacing.lg,
@@ -94,5 +150,8 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semiBold,
     textTransform: 'uppercase',
+  },
+  emptyContainer: {
+    marginTop: Spacing['2xl'],
   },
 });

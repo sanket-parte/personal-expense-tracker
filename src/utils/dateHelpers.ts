@@ -51,3 +51,25 @@ export function groupExpensesByDate(expenses: Expense[]): GroupedExpenses[] {
     data: groups[title],
   }));
 }
+
+/**
+ * Flattens expenses into a single array for `@shopify/flash-list` while preserving section headers.
+ * The resulting array mixes `string` (headers) and `Expense` objects.
+ * Returns the flattened data and an array of indices where headers are located for stickiness.
+ */
+export function flattenExpensesForFlashList(expenses: Expense[]): {
+  data: (string | Expense)[];
+  stickyHeaderIndices: number[];
+} {
+  const grouped = groupExpensesByDate(expenses);
+  const data: (string | Expense)[] = [];
+  const stickyHeaderIndices: number[] = [];
+
+  grouped.forEach((section) => {
+    stickyHeaderIndices.push(data.length);
+    data.push(section.title); // Push the header string
+    data.push(...section.data); // Push the items
+  });
+
+  return { data, stickyHeaderIndices };
+}

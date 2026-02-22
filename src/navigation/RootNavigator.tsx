@@ -1,4 +1,5 @@
 import { useAppTheme } from '@/hooks';
+import { AddExpenseScreen, NLAddScreen, ScanReceiptScreen } from '@/screens';
 import type { RootStackParamList } from '@/types/navigation';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -16,6 +17,11 @@ export function RootNavigator() {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="App" component={AppNavigator} />
+        <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="AddExpense" component={AddExpenseScreen} />
+          <Stack.Screen name="ScanReceipt" component={ScanReceiptScreen} />
+          <Stack.Screen name="NLAdd" component={NLAddScreen} />
+        </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>
   );

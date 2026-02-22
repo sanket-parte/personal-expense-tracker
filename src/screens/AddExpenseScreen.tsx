@@ -28,11 +28,14 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export function AddExpenseScreen() {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function AddExpenseScreen({ route }: any) {
   const { colors } = useAppTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const symbol = getCurrencySymbol();
+
+  const prefillData = route?.params?.prefillData;
 
   const {
     amount,
@@ -45,7 +48,7 @@ export function AddExpenseScreen() {
     isLoading,
     isValid,
     handleSave,
-  } = useAddExpense();
+  } = useAddExpense(prefillData);
 
   const isDisabled = !isValid || isLoading;
 
