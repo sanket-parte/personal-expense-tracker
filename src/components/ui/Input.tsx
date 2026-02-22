@@ -10,22 +10,24 @@ import { useAppTheme } from '@/hooks';
 import React, { forwardRef } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import type { TextInputProps } from 'react-native';
+import type { StyleProp, TextInputProps, TextStyle, ViewStyle } from 'react-native';
 
 interface InputProps extends Omit<TextInputProps, 'style'> {
   label?: string;
   error?: string;
   helperText?: string;
   testID?: string;
+  style?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(
-  ({ label, error, helperText, ...rest }, ref) => {
+  ({ label, error, helperText, testID, style, containerStyle, ...rest }, ref) => {
     const { colors } = useAppTheme();
     const borderColor = error ? colors.error : colors.border;
 
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, containerStyle]}>
         {label ? (
           <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
         ) : null}
@@ -38,10 +40,11 @@ export const Input = forwardRef<TextInput, InputProps>(
               color: colors.text,
               borderColor,
             },
+            style,
           ]}
           placeholderTextColor={colors.textTertiary}
           accessibilityLabel={label}
-          testID={rest.testID}
+          testID={testID}
           {...rest}
         />
         {error ? <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text> : null}

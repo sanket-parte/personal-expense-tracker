@@ -5,14 +5,13 @@
  * amount, title, category, and date with keyboard-aware layout.
  */
 
-import { AnimatedPressable, Button } from '@/components/ui';
+import { AnimatedPressable, Button, Input } from '@/components/ui';
 import { CATEGORIES } from '@/constants/categories';
 import { BorderRadius, Spacing, Typography } from '@/constants/theme';
 import { useAppTheme } from '@/hooks';
 import { useAddExpense } from '@/hooks/useAddExpense';
 import { getCurrencySymbol } from '@/utils/currency';
 import { useNavigation } from '@react-navigation/native';
-import { format } from 'date-fns';
 import React from 'react';
 import {
   Keyboard,
@@ -22,7 +21,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
@@ -33,7 +31,6 @@ export function AddExpenseScreen({ route }: any) {
   const { colors } = useAppTheme();
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const symbol = getCurrencySymbol();
 
   const prefillData = route?.params?.prefillData;
 
@@ -53,10 +50,11 @@ export function AddExpenseScreen({ route }: any) {
   const isDisabled = !isValid || isLoading;
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} testID="keyboard-dismiss">
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         style={[styles.container, { backgroundColor: colors.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        testID="add-expense-view"
       >
         <View
           style={[styles.header, { paddingTop: insets.top + 10, paddingHorizontal: Spacing.lg }]}
@@ -73,78 +71,86 @@ export function AddExpenseScreen({ route }: any) {
           <View style={styles.headerSpacer} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Amount Input */}
           <View style={styles.amountContainer}>
-            <Text style={[styles.currencySymbol, { color: colors.text }]}>{symbol}</Text>
-            <TextInput
-              style={[styles.amountInput, { color: colors.text }]}
-              placeholder="0.00"
-              placeholderTextColor={colors.textTertiary}
-              keyboardType="numeric"
+            <Text style={[styles.currencySymbol, { color: colors.textSecondary }]}>
+              {getCurrencySymbol()}
+            </Text>
+            <Input
               value={amount}
               onChangeText={setAmount}
-              accessibilityLabel="Expense amount"
-              accessibilityHint="Enter the expense amount"
+              placeholder="0.00"
+              keyboardType="decimal-pad"
               testID="amount-input"
-              autoFocus
+              style={styles.amountInput}
+              containerStyle={{ marginBottom: 0 }}
             />
           </View>
 
           {/* Title Input */}
-          <View style={[styles.inputGroup, { backgroundColor: colors.surface }]}>
-            <TextInput
-              style={[styles.textInput, { color: colors.text }]}
-              placeholder="What is this for?"
-              placeholderTextColor={colors.textTertiary}
-              value={title}
-              onChangeText={setTitle}
-              accessibilityLabel="Expense description"
-              accessibilityHint="Enter a description for this expense"
-              testID="title-input"
-            />
-          </View>
+          <Input
+            label="Title"
+            value={title}
+            onChangeText={setTitle}
+            placeholder="What is this for?"
+            testID="title-input"
+            style={styles.textInput}
+          />
 
           {/* Category Selector */}
-          <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>Category</Text>
-          <View style={styles.categoriesGrid}>
-            {CATEGORIES.map((cat) => (
-              <AnimatedPressable
-                key={cat.id}
-                scaleValue={0.92}
-                style={[
-                  styles.categoryChip,
-                  {
-                    backgroundColor: categoryId === cat.id ? cat.color : colors.surfaceVariant,
-                  },
-                ]}
-                onPress={() => setCategoryId(cat.id)}
-                accessibilityLabel={`Category ${cat.name}`}
-                accessibilityHint={`Select ${cat.name} as the expense category`}
-                testID={`category-${cat.id}`}
-              >
-                <Text style={styles.categoryIcon}>{cat.icon}</Text>
-                <Text
+          <View>
+            <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>Category</Text>
+            <View style={styles.categoriesGrid}>
+              {CATEGORIES.map((cat) => (
+                <AnimatedPressable
+                  key={cat.id}
+                  scaleValue={0.92}
                   style={[
-                    styles.categoryName,
+                    styles.categoryChip,
                     {
-                      color: categoryId === cat.id ? colors.background : colors.text,
-                      fontWeight: categoryId === cat.id ? '600' : '400',
+                      backgroundColor: categoryId === cat.id ? cat.color : colors.surfaceVariant,
                     },
                   ]}
+                  onPress={() => setCategoryId(cat.id)}
+                  accessibilityLabel={`Category ${cat.name}`}
+                  accessibilityHint={`Select ${cat.name} as the expense category`}
+                  testID={`category-${cat.id}`}
                 >
-                  {cat.name}
-                </Text>
-              </AnimatedPressable>
-            ))}
+                  <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                  <Text
+                    style={[
+                      styles.categoryName,
+                      {
+                        color: categoryId === cat.id ? colors.background : colors.text,
+                        fontWeight: categoryId === cat.id ? '600' : '400',
+                      },
+                    ]}
+                  >
+                    {cat.name}
+                  </Text>
+                </AnimatedPressable>
+              ))}
+            </View>
           </View>
 
-          {/* Date Information */}
-          <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>Date</Text>
-          <View style={[styles.inputGroup, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.dateText, { color: colors.text }]}>
-              {format(date, 'MMM dd, yyyy')} • Today
-            </Text>
+          {/* Date Selector (Static for now) */}
+          <View>
+            <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>Date</Text>
+            <View style={[styles.inputGroup, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.textInput, { color: colors.text }]}>
+                {new Date().toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}{' '}
+                • Today
+              </Text>
+            </View>
           </View>
         </ScrollView>
 
@@ -193,9 +199,12 @@ const styles = StyleSheet.create({
   backButton: {
     padding: Spacing.sm,
   },
+  scrollView: {
+    flex: 1,
+  },
   content: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing['5xl'] + Spacing['3xl'],
+    paddingBottom: Spacing.lg,
   },
   amountContainer: {
     flexDirection: 'row',

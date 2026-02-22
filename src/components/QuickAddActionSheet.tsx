@@ -31,7 +31,7 @@ export function QuickAddActionSheet({
     setTimeout(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       navigation.navigate(route as any); // Strict TS bypass due to complex overloads
-    }, 150);
+    }, 300);
   };
 
   return (
