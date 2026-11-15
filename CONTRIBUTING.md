@@ -46,6 +46,5 @@ We follow the **Conventional Commits** specification:
 
 ## Architecture Guidelines
 
--   **SOLID Principles**: Adhere to SOLID principles as documented in `.agent/antigravity/instructions.md`.
 -   **Styling**: Use `useAppTheme` hook and `StyleSheet`. No hardcoded colors.
 -   **State**: Use Context for global app state, local state for components.
