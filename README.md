@@ -1,14 +1,21 @@
 # Personal Expense Tracker
 
-A premium, AI-powered personal finance mobile app built with React Native and Expo. Track expenses, manage budgets, and gain actionable financial insights — all with a beautiful, native-feeling UI.
+Side project built with AI coding agents.
 
-## ✨ Features (MVP Roadmap)
+An expense tracker mobile app built with React Native, Expo and TypeScript.
+
+## ✨ Features
 
 - 📊 **Expense Tracking** — Manual entry with category tagging
-- 💰 **Budget Management** — Monthly limits per category with visual progress
-- 📈 **Analytics** — Spending breakdowns with charts
-- 🌙 **Dark Mode** — System-automatic light/dark theme
-- 🔒 **Privacy First** — Local-first data storage, encrypted at rest
+- 🌙 **Dark Mode** — Follows the system light/dark theme
+- 💾 **Local Storage** — Data is stored on-device in SQLite (not encrypted)
+- ⚡ **Quick Add (prototype)** — Natural-language and receipt-scan entry, backed by mock/heuristic parsers (no real LLM or OCR)
+
+### Planned
+
+- 💰 Budget management (monthly limits per category)
+- 📈 Analytics (spending breakdowns with charts)
+- 🔒 Encryption at rest
 
 ## 🛠 Tech Stack
 
